@@ -16,6 +16,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// disk 
+extern unsigned char *disk;
+
+
+
+
+
+
+
+
+
 // Initializes the ext2 file system
 // Called only once during the server initialization
 //

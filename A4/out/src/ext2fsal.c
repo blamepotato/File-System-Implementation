@@ -14,6 +14,14 @@
 #include "ext2fsal.h"
 #include "e2fs.h"
 
+#include "ext2.h"
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+
+unsigned char *disk;
 
 void ext2_fsal_init(const char* image)
 {
@@ -22,7 +30,20 @@ void ext2_fsal_init(const char* image)
      * or any other structures that may need to be initialized in your implementation,
      * open the disk image by mmap-ing it, etc.
      */
-}
+    
+    int fd = open(image, O_RDWR);
+    if (fd < 0){	
+		perror("bad image file");
+		exit(-1);
+	}
+
+    disk = mmap(NULL, 128 * 1024, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if(disk == MAP_FAILED) {
+        perror("mmap");
+        exit(1);
+    }
+    
+}   
 
 void ext2_fsal_destroy()
 {
