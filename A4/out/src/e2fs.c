@@ -11,14 +11,24 @@
  * -------------
  */
 
-/**
- * TODO: Make sure to add all necessary includes here
- */
-
+#include "ext2fsal.h"
 #include "e2fs.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
- /**
-  * TODO: Add any helper implementations here
-  */
+char* escape_path(char* path){
+    int length = strlen(path);
 
-  // .....
+    if(length == 0){
+        return ENOENT;
+    }
+    if (path[0] != '/'){
+        return ENOENT;
+    }
+    if (length == 1){
+        return EEXIST;
+    }
+    
+}
