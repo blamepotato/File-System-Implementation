@@ -19,6 +19,10 @@
 #include <errno.h>
 
 char* escape_path(char* path){
+    /*
+     *  returns a path with trailing slashes trimmed 
+     *  and some error checking 
+     */
     int length = strlen(path);
     // empty input
     if(length == 0){
@@ -33,15 +37,36 @@ char* escape_path(char* path){
         return EEXIST;
     }
     // get rid of trailing slashes 
-    char new_path[length + 1];
-    memset(new_path, '\0', length + 1);
-    strncpy(new_path, path, length);
+    char* trimmed_path = calloc(length + 1, sizeof(char));
+    strncpy(trimmed_path, path, length);
     int last_idx = length - 1;
-    while(new_path[last_idx] == '/'){
-        new_path[last_idx] = '\0';
+    while(trimmed_path[last_idx] == '/'){
+        trimmed_path[last_idx] = '\0';
         last_idx--;
     }
-    
-    return new_path;
-    
+    return trimmed_path;
+}
+
+char** get_path_and_name(char* trimmed_path){
+    /*
+     *  return a 2d array path_and_name
+     *  e.g. trimmed_path = "/first/second/third/file"
+     *  path_and_name[0] is the path to the file: /first/second/third/
+     *  path_and_name[1] is the name of the file: file
+     */
+    char** path_and_name = calloc(2, sizeof(char*));
+    int length = strlen(trimmed_path);
+    char* path = calloc(length + 1, sizeof(char));
+    char* name = calloc(length + 1, sizeof(char));
+    strncpy(path, trimmed_path, length);
+    strncpy(name, trimmed_path, length);
+    int last_idx = length - 1;
+    while(trimmed_path[last_idx] != '/'){
+        path[last_idx] = '\0';
+        last_idx--;
+    }
+    name += last_idx + 1;
+    path_and_name[0] = path;
+    path_and_name[1] = name;
+    return path_and_name;
 }

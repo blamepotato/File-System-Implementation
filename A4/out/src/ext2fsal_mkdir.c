@@ -21,15 +21,13 @@
 
 int32_t ext2_fsal_mkdir(const char *path)
 {
-
-    struct ext2_super_block *sb = (struct ext2_super_block *)(disk + 1024);
-
-    struct ext2_group_desc *gd = (struct ext2_group_desc *)(disk + 1024 * 2);
-    
     // 1. check and reformat input path 
     // 2. Validate path 
     // 3. mkdir (how?)
-    char* new_path = escape_path(path);
+    char* trimmed_path = escape_path(path);
+    char** path_and_name = get_path_and_name(trimmed_path);
+    char* file_path = path_and_name[0];
+    char* file_name = path_and_name[1];
 
     return 0;
 }

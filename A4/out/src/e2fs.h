@@ -22,6 +22,7 @@
  * Implement the helpers in e2fs.c
  */
 
- // .....
+ extern char* escape_path(char* path);
+ extern char** get_path_and_name(char* trimmed_path);
 
 #endif
