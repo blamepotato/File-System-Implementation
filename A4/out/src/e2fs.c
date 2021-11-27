@@ -20,15 +20,28 @@
 
 char* escape_path(char* path){
     int length = strlen(path);
-
+    // empty input
     if(length == 0){
         return ENOENT;
     }
+    // not an absolute path
     if (path[0] != '/'){
         return ENOENT;
     }
+    // mkdir root 
     if (length == 1){
         return EEXIST;
     }
+    // get rid of trailing slashes 
+    char new_path[length + 1];
+    memset(new_path, '\0', length + 1);
+    strncpy(new_path, path, length);
+    int last_idx = length - 1;
+    while(new_path[last_idx] == '/'){
+        new_path[last_idx] = '\0';
+        last_idx--;
+    }
+    
+    return new_path;
     
 }
