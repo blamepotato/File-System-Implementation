@@ -70,3 +70,7 @@ char** get_path_and_name(char* trimmed_path){
     path_and_name[1] = name;
     return path_and_name;
 }
+
+//check if the path is valid.
+
+//check if the file/directory is exist or not.
