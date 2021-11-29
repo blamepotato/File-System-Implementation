@@ -71,6 +71,8 @@ char** get_path_and_name(char* trimmed_path){
     return path_and_name;
 }
 
-//check if the path is valid.
-
-//check if the file/directory is exist or not.
+//check if the name is valid(file/directory/exist?)
+int check_name(struct ext2_dir_entry dir_entry, char *name){
+    //Implementation needed.
+    return 0;
+}
