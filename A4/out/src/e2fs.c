@@ -13,6 +13,7 @@
 
 #include "ext2fsal.h"
 #include "e2fs.h"
+#include "ext2.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,15 +27,15 @@ char* escape_path(char* path){
     int length = strlen(path);
     // empty input
     if(length == 0){
-        return ENOENT;
+        exit(ENOENT);
     }
     // not an absolute path
     if (path[0] != '/'){
-        return ENOENT;
+        exit(ENOENT);
     }
     // mkdir root 
     if (length == 1){
-        return EEXIST;
+        exit(EEXIST);
     }
     // get rid of trailing slashes 
     char* trimmed_path = calloc(length + 1, sizeof(char));
@@ -71,8 +72,19 @@ char** get_path_and_name(char* trimmed_path){
     return path_and_name;
 }
 
-//check if the name is valid(file/directory/exist?)
-int check_name(struct ext2_dir_entry dir_entry, char *name){
-    //Implementation needed.
+unsigned find_last_inode(char *dir_path){
+    // Find inode of the last dir in dir_path
+    // exits with proper error if one of them does not exist or is a file
+    char* current_path = calloc(strlen(dir_path) + 1, sizeof(char));
+    char* current_dir;
+    
+    
     return 0;
+}
+
+char* get_curr_dir_name(char** current_path){
+    // modify current_path, and return curr_dir_name
+    // e.g. current_path = "/foo/bar/lol/"
+    // returns "foo", and modifies current_path to /bar/lol/
+    
 }

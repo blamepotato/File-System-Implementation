@@ -26,8 +26,10 @@ int32_t ext2_fsal_mkdir(const char *path)
     // 3. mkdir (how?)
     char* trimmed_path = escape_path(path);
     char** path_and_name = get_path_and_name(trimmed_path);
-    char* file_path = path_and_name[0];
-    char* file_name = path_and_name[1];
-
+    char* dir_path = path_and_name[0];
+    char* dir_name = path_and_name[1];
+    unsigned int inode = find_last_inode(dir_path);
+    
     return 0;
 }
+
