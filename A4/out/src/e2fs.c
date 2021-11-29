@@ -50,9 +50,9 @@ char* escape_path(char* path){
 char** get_path_and_name(char* trimmed_path){
     /*
      *  return a 2d array path_and_name
-     *  e.g. trimmed_path = "/first/second/third/file"
-     *  path_and_name[0] is the path to the file: /first/second/third/
-     *  path_and_name[1] is the name of the file: file
+     *  e.g. trimmed_path = "/first/second/third/dir"
+     *  path_and_name[0] is the path to the dir: /first/second/third/
+     *  path_and_name[1] is the name of the dir: dir
      */
     char** path_and_name = calloc(2, sizeof(char*));
     int length = strlen(trimmed_path);
