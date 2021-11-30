@@ -98,7 +98,7 @@ unsigned find_last_inode(char *dir_path){
 }
 
 void get_curr_dir_name(char** current_path, char** current_name){
-    // modify current_path, and return curr_dir_name
+    // modify current_path, current_name
     // e.g. current_path = "/foo/bar/lol/"
     // returns "foo", and modifies current_path to /bar/lol/
     if (strlen(*current_path) == 0){
