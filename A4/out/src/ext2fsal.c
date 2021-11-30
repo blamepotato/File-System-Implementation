@@ -43,9 +43,12 @@ void ext2_fsal_init(const char* image)
         exit(1);
     }
 
-    struct ext2_super_block *sb = (struct ext2_super_block *)(disk + 1024);
-    struct ext2_group_desc *gd = (struct ext2_group_desc *)(disk + 1024 * 2);
-}   
+    sb = (struct ext2_super_block *)(disk + 1024);
+    gd = (struct ext2_group_desc *)(disk + 1024 * 2);
+    inode_table = (struct ext2_inode *) (disk + 1024 * gd->bg_inode_table);
+    block_bitmap = (unsigned char *) (disk + 1024 * gd->bg_block_bitmap);
+    inode_bitmap = (unsigned char *) (disk + 1024 * gd->bg_inode_bitmap);
+}
 
 void ext2_fsal_destroy()
 {
