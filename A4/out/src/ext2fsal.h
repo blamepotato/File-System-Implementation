@@ -20,9 +20,9 @@
 extern unsigned char *disk;
 extern struct ext2_super_block *sb;
 extern struct ext2_group_desc *gd;
-struct ext2_inode *inode_table;
-unsigned char *block_bitmap;
-unsigned char *inode_bitmap;
+extern struct ext2_inode *inode_table;
+extern unsigned char *block_bitmap;
+extern unsigned char *inode_bitmap;
 
 
 
