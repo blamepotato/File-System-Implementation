@@ -21,23 +21,25 @@
 
 int32_t ext2_fsal_mkdir(const char *path)
 {
-    // 1. check and reformat input path 
-    char* trimmed_path = escape_path(path);
+    // 1. check and reformat input path
+    int error = 0;
+     
+    char* trimmed_path = escape_path(path, &error);
+    if(error != 0){
+        return error;
+    }
     char** path_and_name = get_path_and_name(trimmed_path);
     char* dir_path = path_and_name[0];
     char* dir_name = path_and_name[1];
-    struct ext2_dir_entry *new;
     // 2. Validate path 
-    unsigned int inode = find_last_inode(dir_path);
+    unsigned int inode = find_last_inode(dir_path, &error);
+    if(error != 0){
+        return error;
+    }
     
     // 3. mkdir
-    //Error checking
-    if (inode == -2){
-        //If any component on the path to the location where the final directory is 
-        //to be created does not exist (or is not a directory) then this operation should 
-        //return an appropriate error: ENOENT.
-        return ENOENT;
-    } else if (inode == -1){
+    struct ext2_dir_entry *new;
+    if (inode == -1){
         //If the specified directory already exists, 
         //then this operation should return EEXIST.
         return EEXIST;

@@ -19,31 +19,38 @@
 #include <string.h>
 #include <errno.h>
 
-char* escape_path(char* path){
+char* escape_path(char* path, int* error){
     /*
      *  returns a path with trailing slashes trimmed 
      *  and some error checking 
      */
     int length = strlen(path);
+    char* trimmed_path = calloc(length + 1, sizeof(char));
     // empty input
     if(length == 0){
-        exit(ENOENT);
+        *error = ENOENT;
+        return trimmed_path;
     }
     // not an absolute path
     if (path[0] != '/'){
-        exit(ENOENT);
+        *error = ENOENT;
+        return trimmed_path;
     }
     // mkdir root 
     if (length == 1){
-        exit(EEXIST);
+        *error = EEXIST;
+        return trimmed_path;
     }
-    // get rid of trailing slashes 
-    char* trimmed_path = calloc(length + 1, sizeof(char));
-    strncpy(trimmed_path, path, length);
-    int last_idx = length - 1;
-    while(trimmed_path[last_idx] == '/'){
-        trimmed_path[last_idx] = '\0';
-        last_idx--;
+    // get rid of extra slashes 
+    char prev = '\0';
+    for(int i = 0; i < length; i++){
+        if(prev != '/' || path[i] != '/'){
+            strncat(trimmed_path, &path[i], 1);
+            prev = path[i];
+        }  
+    }
+    if(trimmed_path[strlen(trimmed_path) - 1] == '/'){
+        trimmed_path[strlen(trimmed_path) - 1] = '\0';
     }
     return trimmed_path;
 }
@@ -72,7 +79,7 @@ char** get_path_and_name(char* trimmed_path){
     return path_and_name;
 }
 
-unsigned find_last_inode(char *dir_path){
+unsigned find_last_inode(char *dir_path, int* error){
     // Find inode of the last dir in dir_path
     // exits with proper error if one of them does not exist or is a file
     int length = strlen(dir_path);
@@ -86,15 +93,16 @@ unsigned find_last_inode(char *dir_path){
 
     while(strlen(current_path) != 0){
         if(inode_entry->i_mode & EXT2_S_IFDIR){
-            //Fill this
-            //struct ext2_dir_entry* dir_entry = get_dir_entry(inode_entry, );
-            //Delete this.
-            struct ext2_dir_entry* dir_entry;
+            struct ext2_dir_entry* dir_entry = get_dir_entry(inode_entry, current_name, error);
+            if (*error != 0){
+                return 0;
+            }
             inode_index = dir_entry->inode - 1;
 			inode_entry = get_inode_by_index(inode_index);
         }
         else{
-            exit(ENOENT);
+            *error = ENOENT;
+            return 0; 
         }
     }
     return inode_index;
@@ -121,20 +129,21 @@ struct ext2_inode* get_inode_by_index(unsigned int index){
     return (struct ext2_inode*)(&inode_table[index]);
 }
 
-struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_name){
-    // TODO: implement this with proper variables
-    // exits with proper errors, e.g. exit(ENOENT)
-    
+struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_name, int* error){
+
     int block_num;
+    struct ext2_dir_entry *dir_entry;
     for(int i = 0; i < inode->i_blocks / 2; i++){
         block_num = inode->i_block[i];
-        struct ext2_dir_entry *dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
+        dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
         int used_size = 0;
         //https://piazza.com/class/ks5i8qv0pqn139?cid=736
         while (used_size < EXT2_BLOCK_SIZE){
             if (dir_entry->name == current_name && dir_entry->file_type != EXT2_FT_DIR){
                 //The file is not a directory file.
-                exit(ENOENT);
+                *error = ENOENT;
+                return dir_entry;
+
             } else if (dir_entry->name == current_name && dir_entry->file_type == EXT2_FT_DIR){
                 return dir_entry;
             }
@@ -143,7 +152,8 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
         }
     }
     //The current_name is not exist.
-    exit(ENOENT);
+    *error = ENOENT;
+    return dir_entry;
 }
 
 int find_an_unused_block(){
