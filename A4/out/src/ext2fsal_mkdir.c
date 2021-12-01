@@ -55,7 +55,10 @@ int32_t ext2_fsal_mkdir(const char *path)
     int block_num = ext2_inode.i_block[last_block];
     struct ext2_dir_entry *dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
     int used_size = 0;
-    int parent_inode = dir_entry->inode;
+    //.'s inode
+    int itself_inode = dir_entry->inode;
+    //..'s inode
+    int parent_inode = ((struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len))->inode;
     //https://piazza.com/class/ks5i8qv0pqn139?cid=736
     while (used_size < EXT2_BLOCK_SIZE){
         used_size += dir_entry->rec_len;
@@ -86,11 +89,11 @@ int32_t ext2_fsal_mkdir(const char *path)
                 //Initialize ..
                 dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
                 //Have problem here, I cannot get parent's inode.
-                //init_second_dir(dir_entry, )
+                init_second_dir(dir_entry, parent_inode);
 
                 //Initialize added directory.
                 dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
-                init_new_dir_in_new_block(dir_entry, dir_name);
+                init_new_dir_in_new_block(dir_entry, dir_name, itself_inode);
 
                 //update inode info.
                 update_inode_blocks(&ext2_inode, unused_block_num);
@@ -99,7 +102,7 @@ int32_t ext2_fsal_mkdir(const char *path)
                 //still have available space.
                 //Initialize a directory entry and add it to the last
                 new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
-                init_new_dir_in_old_bloc(new, dir_name, tmp);
+                init_new_dir_in_old_bloc(new, dir_name, tmp, itself_inode);
             }
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
