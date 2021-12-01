@@ -209,7 +209,7 @@ void init_second_dir(struct ext2_dir_entry * dir_entry, int inode){
     return;
 }
 
-void init_new_dir_in_new_block(struct ext2_dir_entry * dir_entry, char* dir_name){
+void init_new_dir_in_new_block(struct ext2_dir_entry * dir_entry, char* dir_name, int parent_inode){
     dir_entry->inode = find_an_unused_inode();
     dir_entry->rec_len = 1000;
     dir_entry->name_len = strlen(dir_name);
@@ -233,13 +233,13 @@ void init_new_dir_in_new_block(struct ext2_dir_entry * dir_entry, char* dir_name
     //Initialize ..
     dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
     //Have problem here, I cannot get parent's inode.
-    //init_second_dir(dir_entry, )
+    init_second_dir(dir_entry, parent_inode);
 
     struct ext2_inode ext2_inode = inode_table[dir_entry->inode];
     update_inode_blocks(&ext2_inode, unused_block_num);
 }
 
-void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name, unsigned short rec_len){
+void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name, unsigned short rec_len, int parent_inode){
     dir_entry->inode = find_an_unused_inode();
     dir_entry->rec_len = rec_len;
     dir_entry->file_type = EXT2_FT_DIR;
@@ -260,7 +260,7 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     //Initialize ..
     dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
     //Have problem here, I cannot get parent's inode.
-    //init_second_dir(dir_entry, )
+    init_second_dir(dir_entry, parent_inode);
 
     struct ext2_inode ext2_inode = inode_table[dir_entry->inode];
     update_inode_blocks(&ext2_inode, unused_block_num);

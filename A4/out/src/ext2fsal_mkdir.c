@@ -55,6 +55,7 @@ int32_t ext2_fsal_mkdir(const char *path)
     int block_num = ext2_inode.i_block[last_block];
     struct ext2_dir_entry *dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
     int used_size = 0;
+    int parent_inode = dir_entry->inode;
     //https://piazza.com/class/ks5i8qv0pqn139?cid=736
     while (used_size < EXT2_BLOCK_SIZE){
         used_size += dir_entry->rec_len;
