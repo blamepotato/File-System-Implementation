@@ -148,10 +148,62 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 
 int find_an_unused_block(){
     //By Bbitmap
+    int count = 0;
+    for (int byte=0; byte<(32/8); byte++){
+        for (int bit=0; bit<8; bit++){
+            //Skip the reserved blocks.
+            if ((count >= EXT2_GOOD_OLD_FIRST_INO) && ((inode_bitmap[byte]&(1<<bit))==0)){
+                return 8 * byte + bit;
+            }
+            count++;
+        }
+    }
+    //Should not be here, the blocks are all in used except for reserved blocks
     return 0;
 }
 
 int find_an_unused_inode(){
-    //By Ibitmap
+    for (int byte=0; byte<(128/8); byte++){
+        for (int bit=0; bit<8; bit++){
+            if ((block_bitmap[byte]&(1<<bit)) == 0){
+                return 8 * byte + bit;
+            }
+        }
+    }
+    //Should not be here, all inodes are in used.
     return 0;
+}
+
+void init_first_dir(struct ext2_dir_entry * dir_entry, int inode){
+    dir_entry->inode = inode;
+    dir_entry->rec_len = 12;
+    dir_entry->name_len = 1;
+    dir_entry->file_type = EXT2_FT_DIR;
+    dir_entry->name[0] = '.';
+    dir_entry->name[1] = '\0';
+    return;
+}
+
+void init_second_dir(struct ext2_dir_entry * dir_entry, int inode){
+    //Have problem here, I cannot get parent's inode.
+    dir_entry->inode = inode;
+    dir_entry->rec_len = 12;
+    dir_entry->name_len = 2;
+    dir_entry->file_type = EXT2_FT_DIR;
+    dir_entry->name[0] = '.';
+    dir_entry->name[1] = '.';
+    dir_entry->name[2] = '\0';
+    return;
+}
+
+void init_new_dir(struct ext2_dir_entry * dir_entry, char* dir_name){
+    //update bitmap
+    dir_entry->inode = find_an_unused_inode;
+    dir_entry->rec_len = 1000;
+    dir_entry->name_len = strlen(dir_name);
+    dir_entry->file_type = EXT2_FT_DIR;
+    for (int i=0; i<strlen(dir_name); i++){
+        dir_entry->name[i] = dir_name[i];
+    }
+    dir_entry->name[strlen(dir_name)] = '\0';
 }
