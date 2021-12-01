@@ -89,20 +89,16 @@ int32_t ext2_fsal_mkdir(const char *path)
 
                 //Initialize added directory.
                 dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
-                init_new_dir(dir_entry, dir_name);
+                init_new_dir_in_new_block(dir_entry, dir_name);
+
+                //update inode info.
+                update_inode_blocks(&ext2_inode, unused_block_num);
             } else{
                 dir_entry->rec_len = size;
                 //still have available space.
                 //Initialize a directory entry and add it to the last
                 new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
-                new->inode = inode;
-                new->rec_len = tmp;
-                new->file_type = EXT2_FT_DIR;
-                new->name_len = strlen(dir_name);
-                for (int i=0; i<strlen(dir_name); i++){
-                    new->name[i] = dir_name[i];
-                }
-                new->name[strlen(dir_name)] = '\0';
+                init_new_dir_in_old_bloc(new, dir_name, tmp);
             }
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);

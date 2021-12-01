@@ -209,7 +209,7 @@ void init_second_dir(struct ext2_dir_entry * dir_entry, int inode){
     return;
 }
 
-void init_new_dir(struct ext2_dir_entry * dir_entry, char* dir_name){
+void init_new_dir_in_new_block(struct ext2_dir_entry * dir_entry, char* dir_name){
     dir_entry->inode = find_an_unused_inode();
     dir_entry->rec_len = 1000;
     dir_entry->name_len = strlen(dir_name);
@@ -218,4 +218,55 @@ void init_new_dir(struct ext2_dir_entry * dir_entry, char* dir_name){
         dir_entry->name[i] = dir_name[i];
     }
     dir_entry->name[strlen(dir_name)] = '\0';
+
+    //find an unused block and init.
+    //find an unused block and init.
+    struct ext2_inode ext2_inode = inode_table[dir_entry->inode];
+    //find an unused block and add it to inode info.
+    int unused_block_num = find_an_unused_block();
+
+    //Initialize .
+    //might have problem here.
+    struct ext2_dir_entry * new_dir_entry = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
+    init_first_dir(new_dir_entry, dir_entry->inode);
+
+    //Initialize ..
+    dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+    //Have problem here, I cannot get parent's inode.
+    //init_second_dir(dir_entry, )
+
+    struct ext2_inode ext2_inode = inode_table[dir_entry->inode];
+    update_inode_blocks(&ext2_inode, unused_block_num);
+}
+
+void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name, unsigned short rec_len){
+    dir_entry->inode = find_an_unused_inode();
+    dir_entry->rec_len = rec_len;
+    dir_entry->file_type = EXT2_FT_DIR;
+    dir_entry->name_len = strlen(dir_name);
+    for (int i=0; i<strlen(dir_name); i++){
+        dir_entry->name[i] = dir_name[i];
+    }
+    dir_entry->name[strlen(dir_name)] = '\0';
+
+    //find an unused block and add it to inode info.
+    int unused_block_num = find_an_unused_block();
+
+    //Initialize .
+    //might have problem here.
+    struct ext2_dir_entry * new_dir_entry = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
+    init_first_dir(new_dir_entry, dir_entry->inode);
+
+    //Initialize ..
+    dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+    //Have problem here, I cannot get parent's inode.
+    //init_second_dir(dir_entry, )
+
+    struct ext2_inode ext2_inode = inode_table[dir_entry->inode];
+    update_inode_blocks(&ext2_inode, unused_block_num);
+}
+
+void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
+    inode->i_block[inode->i_blocks / 2] = unused_block_num;
+    inode->i_blocks += 2;
 }
