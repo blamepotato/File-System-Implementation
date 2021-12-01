@@ -157,12 +157,13 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 }
 
 int find_an_unused_block(){
-    //By Bbitmap
+    //We call this if and only if we must use a new unused block.
     int count = 0;
     for (int byte=0; byte<(32/8); byte++){
         for (int bit=0; bit<8; bit++){
             //Skip the reserved blocks.
             if ((count >= EXT2_GOOD_OLD_FIRST_INO) && ((inode_bitmap[byte]&(1<<bit))==0)){
+                //How to update block bitmap. &=
                 return 8 * byte + bit;
             }
             count++;
@@ -173,9 +174,11 @@ int find_an_unused_block(){
 }
 
 int find_an_unused_inode(){
+    //We call this helper function if and only if we must use a new unused inode.
     for (int byte=0; byte<(128/8); byte++){
         for (int bit=0; bit<8; bit++){
             if ((block_bitmap[byte]&(1<<bit)) == 0){
+                //How to update inode bitmap. &=
                 return 8 * byte + bit;
             }
         }
@@ -207,8 +210,7 @@ void init_second_dir(struct ext2_dir_entry * dir_entry, int inode){
 }
 
 void init_new_dir(struct ext2_dir_entry * dir_entry, char* dir_name){
-    //update bitmap
-    dir_entry->inode = find_an_unused_inode;
+    dir_entry->inode = find_an_unused_inode();
     dir_entry->rec_len = 1000;
     dir_entry->name_len = strlen(dir_name);
     dir_entry->file_type = EXT2_FT_DIR;
