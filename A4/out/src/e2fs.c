@@ -86,7 +86,10 @@ unsigned find_last_inode(char *dir_path){
 
     while(strlen(current_path) != 0){
         if(inode_entry->i_mode & EXT2_S_IFDIR){
-            struct ext2_dir_entry* dir_entry = get_dir_entry();
+            //Fill this
+            //struct ext2_dir_entry* dir_entry = get_dir_entry(inode_entry, );
+            //Delete this.
+            struct ext2_dir_entry* dir_entry;
             inode_index = dir_entry->inode - 1;
 			inode_entry = get_inode_by_index(inode_index);
         }
@@ -118,8 +121,37 @@ struct ext2_inode* get_inode_by_index(unsigned int index){
     return (struct ext2_inode*)(&inode_table[index]);
 }
 
-struct ext2_dir_entry* get_dir_entry(){
+struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_name){
     // TODO: implement this with proper variables
     // exits with proper errors, e.g. exit(ENOENT)
     
+    int block_num;
+    for(int i = 0; i < inode->i_blocks / 2; i++){
+        block_num = inode->i_block[i];
+        struct ext2_dir_entry *dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
+        int used_size = 0;
+        //https://piazza.com/class/ks5i8qv0pqn139?cid=736
+        while (used_size < EXT2_BLOCK_SIZE){
+            if (dir_entry->name == current_name && dir_entry->file_type != EXT2_FT_DIR){
+                //The file is not a directory file.
+                exit(ENOENT);
+            } else if (dir_entry->name == current_name && dir_entry->file_type == EXT2_FT_DIR){
+                return dir_entry;
+            }
+            used_size += dir_entry->rec_len;
+            dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+        }
+    }
+    //The current_name is not exist.
+    exit(ENOENT);
+}
+
+int find_an_unused_block(){
+    //By Bbitmap
+    return 0;
+}
+
+int find_an_unused_inode(){
+    //By Ibitmap
+    return 0;
 }
