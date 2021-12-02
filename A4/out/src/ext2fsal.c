@@ -33,21 +33,19 @@ void ext2_fsal_init(const char* image)
     
     int fd = open(image, O_RDWR);
     if (fd < 0){	
-		perror("bad image file");
-		exit(-1);
+		return;
 	}
 
     disk = mmap(NULL, 128 * 1024, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if(disk == MAP_FAILED) {
-        perror("mmap");
-        exit(1);
+        return;
     }
 
-    sb = (struct ext2_super_block *)(disk + 1024);
-    gd = (struct ext2_group_desc *)(disk + 1024 * 2);
-    inode_table = (struct ext2_inode *) (disk + 1024 * gd->bg_inode_table);
-    block_bitmap = (unsigned char *) (disk + 1024 * gd->bg_block_bitmap);
-    inode_bitmap = (unsigned char *) (disk + 1024 * gd->bg_inode_bitmap);
+    struct ext2_super_block* sb = (struct ext2_super_block *)(disk + 1024);
+    struct ext2_group_desc* gd = (struct ext2_group_desc *)(disk + 1024 * 2);
+    struct ext2_inode* inode_table = (struct ext2_inode *) (disk + 1024 * gd->bg_inode_table);
+    unsigned char* block_bitmap = (unsigned char *) (disk + 1024 * gd->bg_block_bitmap);
+    unsigned char* inode_bitmap = (unsigned char *) (disk + 1024 * gd->bg_inode_bitmap);
 }
 
 void ext2_fsal_destroy()

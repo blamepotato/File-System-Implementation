@@ -102,7 +102,7 @@ int32_t ext2_fsal_mkdir(const char *path)
                 //still have available space.
                 //Initialize a directory entry and add it to the last
                 new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
-                init_new_dir_in_old_bloc(new, dir_name, tmp, itself_inode);
+                init_new_dir_in_old_block(new, dir_name, tmp, itself_inode);
             }
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
