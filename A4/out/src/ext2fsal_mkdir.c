@@ -51,7 +51,6 @@ int32_t ext2_fsal_mkdir(const char *path)
     //struct ext2_group_desc *gd = (struct ext2_group_desc *)(disk + 1024*2);
     //struct ext2_inode *inode_table = (struct ext2_inode *) (disk + 1024 * gd->bg_inode_table);
     struct ext2_inode ext2_inode = inode_table[inode];
-    unsigned char *block_bitmap = (unsigned char *) (disk + 1024 * gd->bg_block_bitmap);
 
 
     int last_block = (ext2_inode.i_blocks / 2) - 1;
