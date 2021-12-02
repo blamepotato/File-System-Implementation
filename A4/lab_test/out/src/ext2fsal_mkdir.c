@@ -107,14 +107,14 @@ int32_t ext2_fsal_mkdir(const char *path)
 
                 //update inode info.
                 update_inode_blocks(&ext2_inode, unused_block_num);
-                return;
+                return 0;
             } else{
                 dir_entry->rec_len = size;
                 //still have available space.
                 //Initialize a directory entry and add it to the last
                 new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
                 init_new_dir_in_old_block(new, dir_name, tmp, itself_inode);
-                return;
+                return 0;
             }
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
