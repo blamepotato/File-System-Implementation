@@ -15,6 +15,8 @@
 
 // #include <stdbool.h>
 #include <stdint.h>
+#include "ext2.h"
+#include <string.h>
 
 // disk 
 extern unsigned char *disk;
