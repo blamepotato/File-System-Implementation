@@ -19,6 +19,14 @@
 #include <errno.h>
 #include "ext2.h"
 
+
+extern unsigned char *disk;
+extern struct ext2_super_block *sb;
+extern struct ext2_group_desc *gd;
+extern struct ext2_inode *inode_table;
+extern unsigned char *block_bitmap;
+extern unsigned char *inode_bitmap;
+
 int32_t ext2_fsal_mkdir(const char *path)
 {
     // 1. check and reformat input path
