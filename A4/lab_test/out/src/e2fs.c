@@ -27,6 +27,31 @@ extern struct ext2_inode *inode_table;
 extern unsigned char *block_bitmap;
 extern unsigned char *inode_bitmap;
 
+char* get_source(char* src_copy, int* error){
+    
+	FILE *fp = fopen(src_copy, "r");
+
+	if (fp == NULL) {
+        *error = ENOENT;
+		return NULL;
+	}
+
+	fseek(fp, (long)0, SEEK_END);
+
+	long long size = (long long)ftell(fp);
+	rewind(fp);
+
+	char* ptr = calloc(1, size + 1);
+	if (fread(ptr, size, 1, fp) != 1) {
+        *error = ENOENT;
+		return NULL;
+	}
+	fclose(fp);
+    
+	return ptr;
+}
+
+
 char* escape_path(char* path, int* error){
     /*
      *  returns a path with trailing slashes trimmed 

@@ -13,24 +13,39 @@
 
 #include "ext2fsal.h"
 #include "e2fs.h"
-
+#include "ext2.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
+extern unsigned char *disk;
+extern struct ext2_super_block *sb;
+extern struct ext2_group_desc *gd;
+extern struct ext2_inode *inode_table;
+extern unsigned char *block_bitmap;
+extern unsigned char *inode_bitmap;
 
 int32_t ext2_fsal_cp(const char *src,
                      const char *dst)
 {
-    /**
-     * TODO: implement the ext2_cp command here ...
-     * Arguments src and dst are the cp command arguments described in the handout.
-     */
+    int error = 0;
+    char dst_copy[strlen(dst) + 1];
+    strcpy(dst_copy, dst);
+    dst_copy[strlen(dst)] = '\0';
 
-     /* This is just to avoid compilation warnings, remove these 2 lines when you're done. */
-    (void)src;
-    (void)dst;
+    char src_copy[strlen(src) + 1];
+    strcpy(src_copy, src);
+    dst_copy[strlen(src)] = '\0';
 
-    return 0;
+    char* trimmed_dst = escape_path(dst_copy, &error);
+    if(error != 0){
+        return error;
+    }
+    char** path_and_name = get_path_and_name(dst_copy);
+    char* dst_path = path_and_name[0];
+    char* dst_name = path_and_name[1];
+
+    char* source = get_source(src_copy, &error);
+
 }
