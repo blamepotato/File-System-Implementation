@@ -133,7 +133,6 @@ void get_curr_dir_name(char** current_path, char** current_name){
 }
 
 struct ext2_inode* get_inode_by_index(unsigned int index){
-    struct ext2_inode *inode_table = (struct ext2_inode *) (disk + EXT2_BLOCK_SIZE * gd->bg_inode_table);
     return (struct ext2_inode*)(&inode_table[index]);
 }
 
