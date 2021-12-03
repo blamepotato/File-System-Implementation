@@ -28,14 +28,14 @@ extern unsigned char *block_bitmap;
 extern unsigned char *inode_bitmap;
 
 char* get_source(char* src_copy, int* error){
-    
+    // saves the content of a file into a pointer 
 	FILE *fp = fopen(src_copy, "r");
 
 	if (fp == NULL) {
         *error = ENOENT;
 		return NULL;
 	}
-
+    // https://stackoverflow.com/questions/238603/how-can-i-get-a-files-size-in-c
 	fseek(fp, (long)0, SEEK_END);
 
 	long long size = (long long)ftell(fp);
@@ -47,7 +47,7 @@ char* get_source(char* src_copy, int* error){
 		return NULL;
 	}
 	fclose(fp);
-    
+
 	return ptr;
 }
 
