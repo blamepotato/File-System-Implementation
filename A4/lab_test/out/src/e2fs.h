@@ -35,5 +35,6 @@ extern void init_second_dir(struct ext2_dir_entry * dir_entry, int inode);
 extern void init_new_dir_in_new_block(struct ext2_dir_entry * dir_entry, char* dir_name, int parent_inode);
 extern void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name, unsigned short rec_len, int parent_inode);
 extern void update_inode_blocks(struct ext2_inode *inode, int unused_block_num);
+extern char* get_source(char* src_copy, int* error);
 
 #endif
