@@ -196,7 +196,7 @@ int find_an_unused_block(){
         for (int bit=0; bit<8; bit++){
             if ((block_bitmap[byte]&(1<<bit)) == 0){
                 block_bitmap[byte] |= (1<<bit);
-                return count;
+                return count + 1;
             }
             count++;
         }
