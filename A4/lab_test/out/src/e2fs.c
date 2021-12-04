@@ -19,7 +19,7 @@
 #include <string.h>
 #include <errno.h>
 
-
+#define NULL (void *)0
 extern unsigned char *disk;
 extern struct ext2_super_block *sb;
 extern struct ext2_group_desc *gd;
@@ -62,17 +62,17 @@ char* escape_path(char* path, int* error){
     // empty input
     if(length == 0){
         *error = ENOENT;
-        return trimmed_path;
+        return NULL;
     }
     // not an absolute path
     if (path[0] != '/'){
         *error = ENOENT;
-        return trimmed_path;
+        return NULL;
     }
     // mkdir root 
     if (length == 1){
         *error = EEXIST;
-        return trimmed_path;
+        return NULL;
     }
     // get rid of extra slashes 
     char prev = '\0';
@@ -122,20 +122,21 @@ unsigned find_last_inode(char *dir_path, int* error){
     char* current_name = calloc(length + 1, sizeof(char));
     get_curr_dir_name(&current_path, &current_name);
     unsigned int inode_index = EXT2_ROOT_INO - 1;
-    struct ext2_inode* inode_entry = get_inode_by_index(inode_index);
+    struct ext2_inode* inode_entry = (struct ext2_inode*)(&inode_table[inode_index]);
+
 
     while(strlen(current_path) != 0){
         if(inode_entry->i_mode & EXT2_S_IFDIR){
             struct ext2_dir_entry* dir_entry = get_dir_entry(inode_entry, current_name, error);
             if (*error != 0){
-                return 0;
+                return NULL;
             }
             inode_index = dir_entry->inode - 1;
-			inode_entry = get_inode_by_index(inode_index);
+			inode_entry = (struct ext2_inode*)(&inode_table[inode_index]);
         }
         else{
             *error = ENOENT;
-            return 0; 
+            return NULL; 
         }
         get_curr_dir_name(&current_path, &current_name);
     }
@@ -159,9 +160,7 @@ void get_curr_dir_name(char** current_path, char** current_name){
     free(temp);
 }
 
-struct ext2_inode* get_inode_by_index(unsigned int index){
-    return (struct ext2_inode*)(&inode_table[index]);
-}
+
 
 struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_name, int* error){
 
@@ -176,7 +175,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
             if (dir_entry->name == current_name && dir_entry->file_type != EXT2_FT_DIR){
                 //The file is not a directory file.
                 *error = ENOENT;
-                return dir_entry;
+                return NULL;
 
             } else if (dir_entry->name == current_name && dir_entry->file_type == EXT2_FT_DIR){
                 return dir_entry;
@@ -187,7 +186,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
     }
     //The current_name is not exist.
     *error = ENOENT;
-    return dir_entry;
+    return NULL;
 }
 
 int find_an_unused_block(){
