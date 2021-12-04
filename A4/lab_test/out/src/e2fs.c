@@ -19,7 +19,6 @@
 #include <string.h>
 #include <errno.h>
 
-#define NULL (void *)0
 extern unsigned char *disk;
 extern struct ext2_super_block *sb;
 extern struct ext2_group_desc *gd;
@@ -33,7 +32,7 @@ char* get_source(char* src_copy, int* error){
 
 	if (fp == NULL) {
         *error = ENOENT;
-		return NULL;
+		return 0;
 	}
     // https://stackoverflow.com/questions/238603/how-can-i-get-a-files-size-in-c
 	fseek(fp, (long)0, SEEK_END);
@@ -44,7 +43,7 @@ char* get_source(char* src_copy, int* error){
 	char* ptr = calloc(1, size + 1);
 	if (fread(ptr, size, 1, fp) != 1) {
         *error = ENOENT;
-		return NULL;
+		return 0;
 	}
 	fclose(fp);
 
@@ -62,17 +61,17 @@ char* escape_path(char* path, int* error){
     // empty input
     if(length == 0){
         *error = ENOENT;
-        return NULL;
+        return 0;
     }
     // not an absolute path
     if (path[0] != '/'){
         *error = ENOENT;
-        return NULL;
+        return 0;
     }
     // mkdir root 
     if (length == 1){
         *error = EEXIST;
-        return NULL;
+        return 0;
     }
     // get rid of extra slashes 
     char prev = '\0';
@@ -129,14 +128,14 @@ unsigned find_last_inode(char *dir_path, int* error){
         if(inode_entry->i_mode & EXT2_S_IFDIR){
             struct ext2_dir_entry* dir_entry = get_dir_entry(inode_entry, current_name, error);
             if (*error != 0){
-                return NULL;
+                return 0;
             }
             inode_index = dir_entry->inode - 1;
 			inode_entry = (struct ext2_inode*)(&inode_table[inode_index]);
         }
         else{
             *error = ENOENT;
-            return NULL; 
+            return 0; 
         }
         get_curr_dir_name(&current_path, &current_name);
     }
@@ -149,7 +148,7 @@ void get_curr_dir_name(char** current_path, char** current_name){
     // e.g. current_path = "/foo/bar/lol/"
     // returns "foo", and modifies current_path to /bar/lol/
     if (strlen(*current_path) == 0){
-       *current_name = NULL;
+       *current_name = 0;
        return;
     }
     char* temp = calloc(strlen(*current_path), sizeof(char));
@@ -175,7 +174,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
             if (dir_entry->name == current_name && dir_entry->file_type != EXT2_FT_DIR){
                 //The file is not a directory file.
                 *error = ENOENT;
-                return NULL;
+                return 0;
 
             } else if (dir_entry->name == current_name && dir_entry->file_type == EXT2_FT_DIR){
                 return dir_entry;
@@ -186,7 +185,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
     }
     //The current_name is not exist.
     *error = ENOENT;
-    return NULL;
+    return 0;
 }
 
 int find_an_unused_block(){
