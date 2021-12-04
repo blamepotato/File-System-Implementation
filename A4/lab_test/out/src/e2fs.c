@@ -233,7 +233,7 @@ void init_first_dir(struct ext2_dir_entry * dir_entry, int inode){
 
 void init_second_dir(struct ext2_dir_entry * dir_entry, int inode){
     dir_entry->inode = inode;
-    dir_entry->rec_len = 12;
+    dir_entry->rec_len = 1012;
     dir_entry->name_len = 2;
     dir_entry->file_type = EXT2_FT_DIR;
     dir_entry->name[0] = '.';
