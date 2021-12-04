@@ -302,7 +302,7 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
 }
 
 void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
-    inode->i_mode = EXT2_FT_DIR;
+    inode->i_mode = EXT2_S_IFDIR;
     inode->i_uid = 0;
     inode->i_size = EXT2_BLOCK_SIZE;
     inode->i_dtime = 0;;
