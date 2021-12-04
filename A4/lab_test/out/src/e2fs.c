@@ -239,6 +239,7 @@ void init_second_dir(struct ext2_dir_entry * dir_entry, int inode){
     dir_entry->name[0] = '.';
     dir_entry->name[1] = '.';
     dir_entry->name[2] = '\0';
+    inode_table[inode-1].i_links_count++;
     return;
 }
 
@@ -282,8 +283,6 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
 
     //find an unused block and add it to inode info.
     int unused_block_num = find_an_unused_block();
-    printf("Here: %d\n", unused_block_num);
-    //correct.
     //Initialize .
     //might have problem here.
     struct ext2_dir_entry * new_dir_entry = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
@@ -294,7 +293,6 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     new_dir_entry = (struct ext2_dir_entry *) (((char*) new_dir_entry)+ new_dir_entry->rec_len);
     init_second_dir(new_dir_entry, parent_inode);
 
-    printf("Here1: %d\n", dir_entry->inode);
     struct ext2_inode* ext2_inode = &inode_table[dir_entry->inode - 1];
     //ext2_inode.i_blocks = 2;
     //ext2_inode.i_block[0] = unused_block_num;
