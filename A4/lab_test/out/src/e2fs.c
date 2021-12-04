@@ -301,6 +301,7 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     sb->s_free_inodes_count--;
     gd->bg_free_blocks_count--;
     gd->bg_free_inodes_count--;
+    gd->bg_used_dirs_count++;
 }
 
 void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
