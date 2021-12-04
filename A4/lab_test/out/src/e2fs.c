@@ -295,7 +295,7 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     init_second_dir(new_dir_entry, parent_inode);
 
     printf("Here1: %d\n", dir_entry->inode);
-    struct ext2_inode ext2_inode = inode_table[dir_entry->inode];
+    struct ext2_inode ext2_inode = inode_table[dir_entry->inode - 1];
     update_inode_blocks(&ext2_inode, unused_block_num);
 }
 
@@ -314,7 +314,7 @@ void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
     inode->extra[0] = 0;
     inode->extra[1] = 0;
     inode->extra[2] = 0;
-    
+
     inode->i_block[0] = unused_block_num;
-    inode->i_blocks == 2;
+    inode->i_blocks = 2;
 }
