@@ -191,32 +191,32 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 
 int find_an_unused_block(){
     //We call this if and only if we must use a new unused block.
+    for (int byte=0; byte<(128/8); byte++){
+        for (int bit=0; bit<8; bit++){
+            if ((block_bitmap[byte]&(1<<bit)) == 0){
+                //How to update inode bitmap. &=
+                block_bitmap[byte] |= (1<<bit);
+                return 8 * byte + bit;
+            }
+        }
+    }
+    return 0;
+}
+
+int find_an_unused_inode(){
+    //We call this helper function if and only if we must use a new unused inode.
     int count = 0;
     for (int byte=0; byte<(32/8); byte++){
         for (int bit=0; bit<8; bit++){
             //Skip the reserved blocks.
             if ((count >= EXT2_GOOD_OLD_FIRST_INO) && ((inode_bitmap[byte]&(1<<bit))==0)){
-                //How to update block bitmap. &=
+                inode_bitmap[byte] |= (1<<bit);
                 return 8 * byte + bit;
             }
             count++;
         }
     }
     //Should not be here, the blocks are all in used except for reserved blocks
-    return 0;
-}
-
-int find_an_unused_inode(){
-    //We call this helper function if and only if we must use a new unused inode.
-    for (int byte=0; byte<(128/8); byte++){
-        for (int bit=0; bit<8; bit++){
-            if ((block_bitmap[byte]&(1<<bit)) == 0){
-                //How to update inode bitmap. &=
-                return 8 * byte + bit;
-            }
-        }
-    }
-    //Should not be here, all inodes are in used.
     return 0;
 }
 
