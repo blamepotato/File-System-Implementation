@@ -296,6 +296,8 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
 
     printf("Here1: %d\n", dir_entry->inode);
     struct ext2_inode ext2_inode = inode_table[dir_entry->inode - 1];
+    ext2_inode.i_blocks = 2;
+    ext2_inode.i_block[0] = unused_block_num;
     update_inode_blocks(&ext2_inode, unused_block_num);
 }
 
