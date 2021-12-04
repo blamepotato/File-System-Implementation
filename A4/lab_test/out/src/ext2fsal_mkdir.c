@@ -83,8 +83,6 @@ int32_t ext2_fsal_mkdir(const char *path)
             //Left size.
             int tmp = dir_entry->rec_len - size;
             if (tmp < 8 + strlen(dir_name)){
-                ///full
-                //make a new directory block. (how?)
                 //Initialize . , .. and its directory block.
                 //update block_bitmap and inode_bitmap
 

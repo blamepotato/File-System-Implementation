@@ -194,7 +194,6 @@ int find_an_unused_block(){
     for (int byte=0; byte<(128/8); byte++){
         for (int bit=0; bit<8; bit++){
             if ((block_bitmap[byte]&(1<<bit)) == 0){
-                //How to update inode bitmap. &=
                 block_bitmap[byte] |= (1<<bit);
                 return 8 * byte + bit;
             }
@@ -252,13 +251,13 @@ void init_new_dir_in_new_block(struct ext2_dir_entry *dir_entry, char* dir_name,
     dir_entry->name[strlen(dir_name)] = '\0';
 
     //find an unused block and init.
-    //find an unused block and init.
     struct ext2_inode ext2_inode = inode_table[dir_entry->inode];
     //find an unused block and add it to inode info.
     int unused_block_num = find_an_unused_block();
 
     //Initialize .
     //might have problem here.
+    printf("Here: %d\n", unused_block_num);
     struct ext2_dir_entry * new_dir_entry = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
     init_first_dir(new_dir_entry, dir_entry->inode);
 
@@ -290,7 +289,6 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
 
     //Initialize ..
     dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
-    //Have problem here, I cannot get parent's inode.
     init_second_dir(dir_entry, parent_inode);
 
     struct ext2_inode ext2_inode = inode_table[dir_entry->inode - 1];
