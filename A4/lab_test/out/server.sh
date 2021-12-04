@@ -7,5 +7,8 @@ make
 cd ..
 cp -f src/libext2fsal.so bin/libext2fsal.so
 cp -f clean/emptydisk.img img/emptydisk.img
+cd img
+PATH=`pwd`
+cd ..
 cd bin/
-./ext2kmfs /student/gaoyi12/group_0551/A4/lab_test/out/img/emptydisk.img
+./ext2kmfs $PATH/emptydisk.img
