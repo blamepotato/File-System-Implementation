@@ -191,12 +191,14 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 
 int find_an_unused_block(){
     //We call this if and only if we must use a new unused block.
+    int count = 0;
     for (int byte=0; byte<(128/8); byte++){
         for (int bit=0; bit<8; bit++){
             if ((block_bitmap[byte]&(1<<bit)) == 0){
                 block_bitmap[byte] |= (1<<bit);
-                return 8 * byte + bit + 1;
+                return count;
             }
+            count++;
         }
     }
     return 0;
