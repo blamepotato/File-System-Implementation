@@ -208,7 +208,7 @@ int find_an_unused_inode(){
     for (int byte=0; byte<(32/8); byte++){
         for (int bit=0; bit<8; bit++){
             //Skip the reserved blocks.
-            if ((count > EXT2_GOOD_OLD_FIRST_INO) && ((inode_bitmap[byte]&(1<<bit))==0)){
+            if ((count >= EXT2_GOOD_OLD_FIRST_INO) && ((inode_bitmap[byte]&(1<<bit))==0)){
                 inode_bitmap[byte] |= (1<<bit);
                 return 8 * byte + bit;
             }
