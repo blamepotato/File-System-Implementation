@@ -300,6 +300,21 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
 }
 
 void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
+    inode->i_mode = EXT2_FT_DIR;
+    inode->i_uid = 0;
+    inode->i_size = EXT2_BLOCK_SIZE;
+    inode->i_dtime = 0;;
+    inode->i_gid = 0;
+    inode->i_links_count = 2;
+    inode->osd1 = 0;
+    inode->i_generation = 0;
+    inode->i_file_acl = 0;
+    inode->i_dir_acl = 0;
+    inode->i_faddr = 0;
+    inode->extra[0] = 0;
+    inode->extra[1] = 0;
+    inode->extra[2] = 0;
+    
     inode->i_block[0] = unused_block_num;
     inode->i_blocks == 2;
 }
