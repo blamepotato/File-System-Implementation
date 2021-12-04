@@ -137,6 +137,7 @@ unsigned find_last_inode(char *dir_path, int* error){
             *error = ENOENT;
             return 0; 
         }
+        get_curr_dir_name(&current_path, &current_name);
     }
     return inode_index;
 }
