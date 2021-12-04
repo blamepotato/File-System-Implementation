@@ -211,7 +211,7 @@ int find_an_unused_inode(){
             //Skip the reserved blocks.
             if ((count > EXT2_GOOD_OLD_FIRST_INO) && ((inode_bitmap[byte]&(1<<bit))==0)){
                 inode_bitmap[byte] |= (1<<bit);
-                return 8 * byte + bit + 1;
+                return 8 * byte + bit;
             }
             count++;
         }
