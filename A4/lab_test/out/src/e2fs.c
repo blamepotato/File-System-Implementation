@@ -231,7 +231,6 @@ void init_first_dir(struct ext2_dir_entry * dir_entry, int inode){
 }
 
 void init_second_dir(struct ext2_dir_entry * dir_entry, int inode){
-    //Have problem here, I cannot get parent's inode.
     dir_entry->inode = inode;
     dir_entry->rec_len = 12;
     dir_entry->name_len = 2;
@@ -294,7 +293,7 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     //Have problem here, I cannot get parent's inode.
     init_second_dir(dir_entry, parent_inode);
 
-    struct ext2_inode ext2_inode = inode_table[dir_entry->inode];
+    struct ext2_inode ext2_inode = inode_table[dir_entry->inode - 1];
     update_inode_blocks(&ext2_inode, unused_block_num);
 }
 
