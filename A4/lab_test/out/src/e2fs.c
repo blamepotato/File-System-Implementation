@@ -149,7 +149,7 @@ void get_curr_dir_name(char** current_path, char** current_name){
     // returns "foo", and modifies current_path to /bar/lol/
     *current_path += 1;
     if (strlen(*current_path) <= 1){
-       *current_name = 0;
+       *current_name = NULL;
        return;
     }
     char* temp = calloc(strlen(*current_path), sizeof(char));
