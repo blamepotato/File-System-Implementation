@@ -48,6 +48,7 @@ int32_t ext2_fsal_mkdir(const char *path)
         printf("im fucked");
         return error;
     }
+    printf("im fucked");
     
     // 3. mkdir
     struct ext2_dir_entry *new;
