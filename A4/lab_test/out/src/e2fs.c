@@ -117,7 +117,6 @@ unsigned find_last_inode(char *dir_path, int* error){
     int length = strlen(dir_path);
     char* current_path = calloc(length + 1, sizeof(char));
     strncpy(current_path, dir_path, length);
-    current_path += 1;
     char* current_name = calloc(length + 1, sizeof(char));
     get_curr_dir_name(&current_path, &current_name);
     unsigned int inode_index = EXT2_ROOT_INO - 1;
@@ -139,8 +138,8 @@ unsigned find_last_inode(char *dir_path, int* error){
         }
         get_curr_dir_name(&current_path, &current_name);
     }
-    printf("inode: %d", inode_index);
-    printf("here! %s %s", current_path, current_name);
+    printf("inode\n: %d", inode_index);
+    printf("here!\n %s %s", current_path, current_name);
     return inode_index;
 }
 
@@ -148,15 +147,16 @@ void get_curr_dir_name(char** current_path, char** current_name){
     // modify current_path, current_name
     // e.g. current_path = "/foo/bar/lol/"
     // returns "foo", and modifies current_path to /bar/lol/
-    if (strlen(*current_path) == 0){
+    if (strlen(*current_path) <= 1){
        *current_name = 0;
        return;
     }
+    *current_path += 1;
     char* temp = calloc(strlen(*current_path), sizeof(char));
     strcpy(temp, *current_path);
     char* token = strtok(temp, "/");
     strcpy(*current_name, token);
-    *current_path += strlen(token) + 1;
+    *current_path += strlen(token);
     free(temp);
 }
 
