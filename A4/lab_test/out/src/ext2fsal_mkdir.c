@@ -29,12 +29,14 @@ extern unsigned char *inode_bitmap;
 
 int32_t ext2_fsal_mkdir(const char *path)
 {
+    printf("start\n");
     // 1. check and reformat input path
     int error = 0;
     char path_copy[strlen(path) + 1];
     strcpy(path_copy, path);
     path_copy[strlen(path)] = '\0';
 
+    printf("here\n");
     char* trimmed_path = escape_path(path_copy, &error);
     if(error != 0){
         return error;
