@@ -81,10 +81,8 @@ int32_t ext2_fsal_mkdir(const char *path)
 
             //dir_entry is the last one at this time.
             int size = 8 + (int) dir_entry->name_len;
-            printf("1:%d\n", size);
             //make it be multiple of 4
             size += (4 - size % 4);
-            printf("2:%d\n", size);
 
             //Left size.
             int tmp = dir_entry->rec_len - size;
