@@ -194,7 +194,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
     return 0;
 }
 
-/**
+
 int check_current_inode(unsigned int inode, char* current_name){
     struct ext2_inode ext2_inode = inode_table[inode];
     int block_num;
@@ -221,11 +221,12 @@ int check_current_inode(unsigned int inode, char* current_name){
             } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
                 return EEXIST;
             }
+            used_size += dir_entry->rec_len;
+            dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
         }
     }
     return 0;
 }
-*/
 
 int find_an_unused_block(){
     //We call this if and only if we must use a new unused block.
@@ -305,7 +306,6 @@ void init_new_dir_in_new_block(struct ext2_dir_entry *dir_entry, char* dir_name,
     dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
     init_second_dir(dir_entry, parent_inode);
 
-    //struct ext2_inode new_inode = inode_table[dir_entry->inode];
     update_inode_blocks(&ext2_inode, unused_block_num);
 }
 
