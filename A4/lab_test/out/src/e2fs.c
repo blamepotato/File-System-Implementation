@@ -122,9 +122,9 @@ unsigned int find_last_inode(char *dir_path, int* error){
     unsigned int inode_index = EXT2_ROOT_INO - 1;
     struct ext2_inode* inode_entry = (struct ext2_inode*)(&inode_table[inode_index]);
 
-
     while(current_path){
         if(inode_entry->i_mode & EXT2_S_IFDIR){
+    
             struct ext2_dir_entry* dir_entry = get_dir_entry(inode_entry, current_name, error);
             if (*error != 0){
                 return 0;
