@@ -37,12 +37,14 @@ int32_t ext2_fsal_mkdir(const char *path)
 
     char* trimmed_path = escape_path(path_copy, &error);
     if(error != 0){
+        printf("zheli");
         return error;
     }
     char** path_and_name = get_path_and_name(trimmed_path);
     char* dir_path = path_and_name[0];
     char* dir_name = path_and_name[1];
     // 2. Validate path 
+    printf("nali");
     unsigned int inode = find_last_inode(dir_path, &error);
     if(error != 0){
         printf("11111111111111111111");
