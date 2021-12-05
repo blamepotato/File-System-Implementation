@@ -80,7 +80,8 @@ int32_t ext2_fsal_mkdir(const char *path)
         if (used_size == EXT2_BLOCK_SIZE){
 
             //dir_entry is the last one at this time.
-            int size = 8 + strlen(dir_entry->name);
+            int size = 8 + (int) dir_entry->name_len;
+            printf("Here: %c", dir_entry->name_len);
             printf("1:%d\n", size);
             //make it be multiple of 4
             size += size % 4;
