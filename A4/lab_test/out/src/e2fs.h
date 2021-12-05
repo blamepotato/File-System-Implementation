@@ -24,7 +24,7 @@
 
 extern char* escape_path(char* path, int* error);
 extern char** get_path_and_name(char* trimmed_path);
-extern unsigned find_last_inode(char *dir_path, int* error);
+extern unsigned int find_last_inode(char *dir_path, int* error);
 extern void get_curr_dir_name(char** current_path, char** current_name);
 extern struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_name, int* error); 
 extern int find_an_unused_block();

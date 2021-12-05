@@ -111,7 +111,7 @@ char** get_path_and_name(char* trimmed_path){
     return path_and_name;
 }
 
-unsigned find_last_inode(char *dir_path, int* error){
+unsigned int find_last_inode(char *dir_path, int* error){
     // Find inode of the last dir in dir_path
     // exits with proper error if one of them does not exist or is a file
     int length = strlen(dir_path);
@@ -123,7 +123,7 @@ unsigned find_last_inode(char *dir_path, int* error){
     struct ext2_inode* inode_entry = (struct ext2_inode*)(&inode_table[inode_index]);
 
 
-    while(strlen(current_path) != 0){
+    while(current_path){
         if(inode_entry->i_mode & EXT2_S_IFDIR){
             struct ext2_dir_entry* dir_entry = get_dir_entry(inode_entry, current_name, error);
             if (*error != 0){
@@ -149,6 +149,7 @@ void get_curr_dir_name(char** current_path, char** current_name){
     // returns "foo", and modifies current_path to /bar/lol/
     if (strlen(*current_path) <= 1){
        *current_name = NULL;
+       *current_path = NULL;
        return;
     }
     *current_path += 1;
