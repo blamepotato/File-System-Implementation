@@ -50,9 +50,9 @@ int32_t ext2_fsal_mkdir(const char *path)
     }
     printf("22222222222222222222222");
     
-    printf("Here: %c\n", trimmed_path);
-    printf("Here: %c\n", dir_path);
-    printf("Here: %c\n", dir_name);
+    printf("Here: %s\n", trimmed_path);
+    printf("Here: %s\n", dir_path);
+    printf("Here: %s\n", dir_name);
     printf("Here: %d\n", inode);
 
     // 3. mkdir
