@@ -124,13 +124,11 @@ unsigned int find_last_inode(char *dir_path, int* error){
 
     while(current_path){
         if(inode_entry->i_mode & EXT2_S_IFDIR){
-    
-            return 11;
             struct ext2_dir_entry* dir_entry = get_dir_entry(inode_entry, current_name, error);
             if (*error != 0){
                 return 0;
             }
-            //inode_index = dir_entry->inode - 1;
+            inode_index = dir_entry->inode - 1;
 			inode_entry = (struct ext2_inode*)(&inode_table[inode_index]);
         }
         else{
@@ -143,7 +141,7 @@ unsigned int find_last_inode(char *dir_path, int* error){
     printf("outside inode\n: %d", inode_index);
     printf("path and name  %s %s \n", current_path, current_name);
     //return inode_index;
-    return 13;
+    return inode_index;
 }
 
 void get_curr_dir_name(char** current_path, char** current_name){
@@ -176,12 +174,19 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
         int used_size = 0;
         //https://piazza.com/class/ks5i8qv0pqn139?cid=736
         while (used_size < EXT2_BLOCK_SIZE){
-            if (dir_entry->name == current_name && dir_entry->file_type != EXT2_FT_DIR){
+
+            char name[dir_entry->name_len + 1];
+            name[dir_entry->name_len] = '\0';
+            for(int i = 0;i < dir_entry->name_len;i++){
+                name[i] = dir_entry->name[i];
+            }  
+
+            if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
                 //The file is not a directory file.
                 *error = ENOENT;
                 return 0;
 
-            } else if (dir_entry->name == current_name && dir_entry->file_type == EXT2_FT_DIR){
+            } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
                 return dir_entry;
             }
             used_size += dir_entry->rec_len;
