@@ -45,6 +45,7 @@ int32_t ext2_fsal_mkdir(const char *path)
     // 2. Validate path 
     unsigned int inode = find_last_inode(dir_path, &error);
     if(error != 0){
+        printf("im fucked");
         return error;
     }
     

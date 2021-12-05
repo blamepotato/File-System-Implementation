@@ -29,6 +29,7 @@ extern unsigned char *inode_bitmap;
 int32_t ext2_fsal_cp(const char *src,
                      const char *dst)
 {
+    /**
     int error = 0;
     char dst_copy[strlen(dst) + 1];
     strcpy(dst_copy, dst);
@@ -47,5 +48,6 @@ int32_t ext2_fsal_cp(const char *src,
     char* dst_name = path_and_name[1];
 
     char* source = get_source(src_copy, &error);
-
+    **/
+   return 0;
 }
