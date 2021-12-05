@@ -142,7 +142,8 @@ unsigned int find_last_inode(char *dir_path, int* error){
     }
     printf("outside inode\n: %d", inode_index);
     printf("path and name  %s %s \n", current_path, current_name);
-    return inode_index;
+    //return inode_index;
+    return 13;
 }
 
 void get_curr_dir_name(char** current_path, char** current_name){
