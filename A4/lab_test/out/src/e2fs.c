@@ -194,6 +194,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
     return 0;
 }
 
+/**
 int check_current_inode(unsigned int inode, char* current_name){
     struct ext2_inode ext2_inode = inode_table[inode];
     int block_num;
@@ -224,6 +225,7 @@ int check_current_inode(unsigned int inode, char* current_name){
     }
     return 0;
 }
+*/
 
 int find_an_unused_block(){
     //We call this if and only if we must use a new unused block.
