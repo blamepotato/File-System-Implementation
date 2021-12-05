@@ -50,8 +50,6 @@ int32_t ext2_fsal_mkdir(const char *path)
     if(error != 0){
         return error;
     }
-    
-    printf("inode: %d\n", inode);
 
     // 3. mkdir
     struct ext2_dir_entry *new;
