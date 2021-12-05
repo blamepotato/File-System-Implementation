@@ -147,11 +147,11 @@ void get_curr_dir_name(char** current_path, char** current_name){
     // modify current_path, current_name
     // e.g. current_path = "/foo/bar/lol/"
     // returns "foo", and modifies current_path to /bar/lol/
+    *current_path += 1;
     if (strlen(*current_path) <= 1){
        *current_name = 0;
        return;
     }
-    *current_path += 1;
     char* temp = calloc(strlen(*current_path), sizeof(char));
     strcpy(temp, *current_path);
     char* token = strtok(temp, "/");
