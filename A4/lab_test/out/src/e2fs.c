@@ -162,7 +162,6 @@ void get_curr_dir_name(char** current_path, char** current_name){
 
 
 struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_name, int* error){
-    
     int block_num;
     struct ext2_dir_entry *dir_entry;
     for(int i = 0; i < inode->i_blocks / 2; i++){
@@ -176,7 +175,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
             name[dir_entry->name_len] = '\0';
             for(int i = 0;i < dir_entry->name_len;i++){
                 name[i] = dir_entry->name[i];
-            }  
+            }
 
             if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
                 //The file is not a directory file.
@@ -193,6 +192,38 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
     //The current_name is not exist.
     *error = ENOENT;
     return 0;
+}
+
+void check_current_inode(unsigned int inode, char* current_name, int* error){
+    struct ext2_inode ext2_inode = inode_table[inode];
+    int block_num;
+    struct ext2_dir_entry *dir_entry;
+    for(int i = 0; i < ext2_inode.i_blocks / 2; i++){
+        block_num = ext2_inode.i_block[i];
+        dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
+        int used_size = 0;
+        //https://piazza.com/class/ks5i8qv0pqn139?cid=736
+        while (used_size < EXT2_BLOCK_SIZE){
+            char name[dir_entry->name_len + 1];
+            name[dir_entry->name_len] = '\0';
+            for(int i = 0;i < dir_entry->name_len;i++){
+                name[i] = dir_entry->name[i];
+            }
+
+            if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
+                //The name is exist.
+                // Argument: "/foo/bar/blah", where the path is valid up to "blah" and "blah" is an already existing
+                //directory. This should return EEXIST. Same thing if blah had a trailing "/".
+                //3. Argument: "/foo/bar/blah/", where both "foo" and "bar" exist but "blah" is an existing file. This
+                //should return ENOENT.
+                *error = ENOENT;
+                return;
+            } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
+                *error = EEXIST;
+                return;
+            }
+        }
+    }
 }
 
 int find_an_unused_block(){

@@ -52,15 +52,13 @@ int32_t ext2_fsal_mkdir(const char *path)
     }
 
     // 3. mkdir
-    struct ext2_dir_entry *new;
-    if (inode == -1){
+    check_current_inode(inode, dir_name, &error);
+    if (error != 0){
         //If the specified directory already exists, 
         //then this operation should return EEXIST.
-        return EEXIST;
+        return error;
     }
-    //The following variables should be set to be extern?
-    //struct ext2_group_desc *gd = (struct ext2_group_desc *)(disk + 1024*2);
-    //struct ext2_inode *inode_table = (struct ext2_inode *) (disk + 1024 * gd->bg_inode_table);
+    
     struct ext2_inode ext2_inode = inode_table[inode];
 
 
@@ -72,6 +70,8 @@ int32_t ext2_fsal_mkdir(const char *path)
     int itself_inode = dir_entry->inode;
     //..'s inode
     int parent_inode = ((struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len))->inode;
+
+    struct ext2_dir_entry *new;
     //https://piazza.com/class/ks5i8qv0pqn139?cid=736
     while (used_size < EXT2_BLOCK_SIZE){
         used_size += dir_entry->rec_len;
