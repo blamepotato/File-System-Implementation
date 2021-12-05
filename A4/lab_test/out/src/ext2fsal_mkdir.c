@@ -52,11 +52,11 @@ int32_t ext2_fsal_mkdir(const char *path)
     }
 
     // 3. mkdir
-    check_current_inode(inode, dir_name, &error);
-    if (error != 0){
+    int check = check_current_inode(inode, dir_name);
+    if (check != 0){
         //If the specified directory already exists, 
         //then this operation should return EEXIST.
-        return error;
+        return check;
     }
     
     struct ext2_inode ext2_inode = inode_table[inode];

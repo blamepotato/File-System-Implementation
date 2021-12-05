@@ -194,7 +194,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
     return 0;
 }
 
-void check_current_inode(unsigned int inode, char* current_name, int* error){
+int check_current_inode(unsigned int inode, char* current_name){
     struct ext2_inode ext2_inode = inode_table[inode];
     int block_num;
     struct ext2_dir_entry *dir_entry;
@@ -216,14 +216,13 @@ void check_current_inode(unsigned int inode, char* current_name, int* error){
                 //directory. This should return EEXIST. Same thing if blah had a trailing "/".
                 //3. Argument: "/foo/bar/blah/", where both "foo" and "bar" exist but "blah" is an existing file. This
                 //should return ENOENT.
-                *error = ENOENT;
-                return;
+                return ENOENT;
             } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
-                *error = EEXIST;
-                return;
+                return EEXIST;
             }
         }
     }
+    return 0;
 }
 
 int find_an_unused_block(){
