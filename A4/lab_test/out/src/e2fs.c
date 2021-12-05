@@ -129,7 +129,8 @@ unsigned int find_last_inode(char *dir_path, int* error){
             if (*error != 0){
                 return 0;
             }
-            inode_index = dir_entry->inode - 1;
+            //inode_index = dir_entry->inode - 1;
+            inode_index = 13;
 			inode_entry = (struct ext2_inode*)(&inode_table[inode_index]);
         }
         else{
@@ -139,7 +140,7 @@ unsigned int find_last_inode(char *dir_path, int* error){
         printf("inside: %s %s", current_path, current_name);
         get_curr_dir_name(&current_path, &current_name);
     }
-    printf("inode\n: %d", inode_index);
+    printf("outside inode\n: %d", inode_index);
     printf("path and name  %s %s \n", current_path, current_name);
     return inode_index;
 }
@@ -165,7 +166,7 @@ void get_curr_dir_name(char** current_path, char** current_name){
 
 
 struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_name, int* error){
-
+    
     int block_num;
     struct ext2_dir_entry *dir_entry;
     for(int i = 0; i < inode->i_blocks / 2; i++){
