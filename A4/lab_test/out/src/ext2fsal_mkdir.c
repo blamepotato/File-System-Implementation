@@ -45,10 +45,10 @@ int32_t ext2_fsal_mkdir(const char *path)
     // 2. Validate path 
     unsigned int inode = find_last_inode(dir_path, &error);
     if(error != 0){
-        printf("bad");
+        printf("1");
         return error;
     }
-    printf("good");
+    printf("2");
     
     // 3. mkdir
     struct ext2_dir_entry *new;
