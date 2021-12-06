@@ -68,11 +68,6 @@ char* escape_path(char* path, int* error, int* has_slash){
         *error = ENOENT;
         return 0;
     }
-    // mkdir root 
-    if (length == 1){
-        *error = EEXIST;
-        return 0;
-    }
     // get rid of extra slashes 
     char prev = '\0';
     for(int i = 0; i < length; i++){
@@ -198,6 +193,9 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 
 
 int check_current_inode(unsigned int inode, char* current_name){
+    // return 1 if found name and is dir 
+    // return 2 if found name and is file 
+    // return 0 if not found
     struct ext2_inode ext2_inode = inode_table[inode];
     int block_num;
     struct ext2_dir_entry *dir_entry;
@@ -213,15 +211,15 @@ int check_current_inode(unsigned int inode, char* current_name){
                 name[i] = dir_entry->name[i];
             }
 
-            if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
-                //The name is exist.
+            if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
+                //The name exists.
                 // Argument: "/foo/bar/blah", where the path is valid up to "blah" and "blah" is an already existing
                 //directory. This should return EEXIST. Same thing if blah had a trailing "/".
                 //3. Argument: "/foo/bar/blah/", where both "foo" and "bar" exist but "blah" is an existing file. This
                 //should return ENOENT.
-                return ENOENT;
-            } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
-                return EEXIST;
+                return 1;
+            } else if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
+                return 2;
             }
             used_size += dir_entry->rec_len;
             dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
