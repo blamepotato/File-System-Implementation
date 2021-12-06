@@ -36,6 +36,5 @@ extern void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* d
 extern void update_inode_blocks(struct ext2_inode *inode, int unused_block_num);
 extern char* get_source(char* src_copy, int* error);
 extern int check_current_inode(unsigned int inode, char* current_name);
-int32_t mk_dir(unsigned int inode, char** dir_name);
 
 #endif

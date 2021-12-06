@@ -27,12 +27,6 @@ extern struct ext2_inode *inode_table;
 extern unsigned char *block_bitmap;
 extern unsigned char *inode_bitmap;
 
-extern pthread_mutex_t sb_lock;
-extern pthread_mutex_t gd_lock;
-extern pthread_mutex_t inode_table_lock;
-extern pthread_mutex_t block_bitmap_lock;
-extern pthread_mutex_t inode_bitmap_lock;
-
 int32_t ext2_fsal_mkdir(const char *path)
 {
     
@@ -73,7 +67,68 @@ int32_t ext2_fsal_mkdir(const char *path)
         return ENOENT;
     }
     
-    return mk_dir(inode, &dir_name);
+    
+    struct ext2_inode* ext2_inode = &inode_table[inode];
+    int last_block = (ext2_inode->i_blocks / 2) - 1;
+    int block_num = ext2_inode->i_block[last_block];
 
+    struct ext2_dir_entry *dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
+    int used_size = 0;
+    //.'s inode
+    int itself_inode = dir_entry->inode;
+    //..'s inode
+    int parent_inode = ((struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len))->inode;
+
+    struct ext2_dir_entry *new;
+    //https://piazza.com/class/ks5i8qv0pqn139?cid=736
+    while (used_size < EXT2_BLOCK_SIZE){
+        used_size += dir_entry->rec_len;
+        if (used_size == EXT2_BLOCK_SIZE){
+
+            //dir_entry is the last one at this time.
+            int size = 8 + (int) dir_entry->name_len;
+            //make it be multiple of 4
+            size += (4 - size % 4);
+
+            //Left size.
+            int tmp = dir_entry->rec_len - size;
+            if (tmp < 8 + strlen(dir_name)){
+                //Initialize . , .. and its directory block.
+                //update block_bitmap and inode_bitmap
+
+                //find an unused block and add it to inode info.
+                int unused_block_num = find_an_unused_block();
+
+                //Initialize .
+                dir_entry = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
+                init_first_dir(dir_entry, inode);
+
+                //Initialize ..
+                dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+                init_second_dir(dir_entry, parent_inode);
+                dir_entry->rec_len = 12;
+
+                //update inode info.
+                ext2_inode->i_block[ext2_inode->i_blocks / 2] = unused_block_num;
+                ext2_inode->i_blocks += 2;
+
+                //Initialize added directory.
+                new = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+                init_new_dir_in_old_block(new, dir_name, (unsigned short) 1000, itself_inode);
+
+                return 0;
+            } else{
+                dir_entry->rec_len = size;
+                //still have available space.
+                //Initialize a directory entry and add it to the last
+                new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
+                init_new_dir_in_old_block(new, dir_name, tmp, itself_inode);
+                return 0;
+            }
+        }
+        dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+    }
+
+    return 0;
 }
 
