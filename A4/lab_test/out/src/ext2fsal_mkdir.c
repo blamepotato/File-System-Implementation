@@ -36,12 +36,10 @@ int32_t ext2_fsal_mkdir(const char *path)
     char path_copy[strlen(path) + 1];
     strcpy(path_copy, path);
     path_copy[strlen(path)] = '\0';
+
+
     char* trimmed_path = escape_path(path_copy, &error, &has_slash);
-
-    if (strlen(trimmed_path) == 1){
-        return EEXIST;
-    }
-
+    
     if(error != 0){
         return error;
     }
@@ -49,10 +47,8 @@ int32_t ext2_fsal_mkdir(const char *path)
     char** path_and_name = get_path_and_name(trimmed_path);
     char* dir_path = path_and_name[0];
     char* dir_name = path_and_name[1];
-    if(strlen(dir_name) > EXT2_NAME_LEN){
-        return ENAMETOOLONG;
-    }
     // 2. Validate path 
+    
     unsigned int inode = find_last_inode(dir_path, &error);
     if(error != 0){
         return error;
@@ -60,18 +56,17 @@ int32_t ext2_fsal_mkdir(const char *path)
 
     // 3. mkdir
     int check = check_current_inode(inode, dir_name);
-    if (check == 1){
-        return EEXIST;
-    }
-    else if (check == 2){
-        return ENOENT;
+    if (check != 0){
+        //If the specified directory already exists, 
+        //then this operation should return EEXIST.
+        return check;
     }
     
-    
-    struct ext2_inode* ext2_inode = &inode_table[inode];
-    int last_block = (ext2_inode->i_blocks / 2) - 1;
-    int block_num = ext2_inode->i_block[last_block];
+    struct ext2_inode ext2_inode = inode_table[inode];
 
+
+    int last_block = (ext2_inode.i_blocks / 2) - 1;
+    int block_num = ext2_inode.i_block[last_block];
     struct ext2_dir_entry *dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
     int used_size = 0;
     //.'s inode
@@ -114,7 +109,7 @@ int32_t ext2_fsal_mkdir(const char *path)
                 init_new_dir_in_new_block(dir_entry, dir_name, itself_inode);
 
                 //update inode info.
-                update_inode_blocks(ext2_inode, unused_block_num);
+                update_inode_blocks(&ext2_inode, unused_block_num);
                 return 0;
             } else{
                 dir_entry->rec_len = size;
