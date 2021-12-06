@@ -49,5 +49,7 @@ int32_t ext2_fsal_cp(const char *src,
 
     char* source = get_source(src_copy, &error);
     **/
+   (void)src;
+   (void)dst;
    return 0;
 }
