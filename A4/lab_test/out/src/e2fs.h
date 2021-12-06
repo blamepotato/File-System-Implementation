@@ -22,7 +22,7 @@
  * Implement the helpers in e2fs.c
  */
 
-extern char* escape_path(char* path, int* error);
+extern char* escape_path(char* path, int* error, int* has_slash);
 extern char** get_path_and_name(char* trimmed_path);
 extern unsigned int find_last_inode(char *dir_path, int* error);
 extern void get_curr_dir_name(char** current_path, char** current_name);

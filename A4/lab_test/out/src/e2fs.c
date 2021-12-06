@@ -51,7 +51,7 @@ char* get_source(char* src_copy, int* error){
 }
 
 
-char* escape_path(char* path, int* error){
+char* escape_path(char* path, int* error, int* has_slash){
     /*
      *  returns a path with trailing slashes trimmed 
      *  and some error checking 
@@ -82,6 +82,7 @@ char* escape_path(char* path, int* error){
         }  
     }
     if(trimmed_path[strlen(trimmed_path) - 1] == '/'){
+        *has_slash = 1;
         trimmed_path[strlen(trimmed_path) - 1] = '\0';
     }
     

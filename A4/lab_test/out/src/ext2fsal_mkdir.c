@@ -32,12 +32,13 @@ int32_t ext2_fsal_mkdir(const char *path)
     
     // 1. check and reformat input path
     int error = 0;
+    int has_slash = 0;
     char path_copy[strlen(path) + 1];
     strcpy(path_copy, path);
     path_copy[strlen(path)] = '\0';
 
 
-    char* trimmed_path = escape_path(path_copy, &error);
+    char* trimmed_path = escape_path(path_copy, &error, &has_slash);
     
     if(error != 0){
         return error;
