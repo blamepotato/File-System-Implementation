@@ -360,47 +360,7 @@ void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
     inode->i_blocks = 2;
 }
 
-int32_t mkdir(const char *path)
-{
-    
-    // 1. check and reformat input path
-    int error = 0;
-    int has_slash = 0;
-    char path_copy[strlen(path) + 1];
-    strcpy(path_copy, path);
-    path_copy[strlen(path)] = '\0';
-    char* trimmed_path = escape_path(path_copy, &error, &has_slash);
-
-    if (strlen(trimmed_path) == 1){
-        return EEXIST;
-    }
-
-    if(error != 0){
-        return error;
-    }
-
-    char** path_and_name = get_path_and_name(trimmed_path);
-    char* dir_path = path_and_name[0];
-    char* dir_name = path_and_name[1];
-    if(strlen(dir_name) > EXT2_NAME_LEN){
-        return ENAMETOOLONG;
-    }
-    // 2. Validate path 
-    unsigned int inode = find_last_inode(dir_path, &error);
-    if(error != 0){
-        return error;
-    }
-
-    // 3. mkdir
-    int check = check_current_inode(inode, dir_name);
-    if (check == 1){
-        return EEXIST;
-    }
-    else if (check == 2){
-        return ENOENT;
-    }
-    
-    
+void mk_dir(unsigned int inode, char* dir_name){
     struct ext2_inode* ext2_inode = &inode_table[inode];
     int last_block = (ext2_inode->i_blocks / 2) - 1;
     int block_num = ext2_inode->i_block[last_block];
@@ -461,6 +421,4 @@ int32_t mkdir(const char *path)
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
     }
-
-    return 0;
 }

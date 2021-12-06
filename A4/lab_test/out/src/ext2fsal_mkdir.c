@@ -35,6 +35,46 @@ extern pthread_mutex_t inode_bitmap_lock;
 
 int32_t ext2_fsal_mkdir(const char *path)
 {
-    return mkdir(path);
+    
+    // 1. check and reformat input path
+    int error = 0;
+    int has_slash = 0;
+    char path_copy[strlen(path) + 1];
+    strcpy(path_copy, path);
+    path_copy[strlen(path)] = '\0';
+    char* trimmed_path = escape_path(path_copy, &error, &has_slash);
+
+    if (strlen(trimmed_path) == 1){
+        return EEXIST;
+    }
+
+    if(error != 0){
+        return error;
+    }
+
+    char** path_and_name = get_path_and_name(trimmed_path);
+    char* dir_path = path_and_name[0];
+    char* dir_name = path_and_name[1];
+    if(strlen(dir_name) > EXT2_NAME_LEN){
+        return ENAMETOOLONG;
+    }
+    // 2. Validate path 
+    unsigned int inode = find_last_inode(dir_path, &error);
+    if(error != 0){
+        return error;
+    }
+
+    // 3. mkdir
+    int check = check_current_inode(inode, dir_name);
+    if (check == 1){
+        return EEXIST;
+    }
+    else if (check == 2){
+        return ENOENT;
+    }
+    
+    mk_dir(inode, dir_name);
+    
+    return 0;
 }
 
