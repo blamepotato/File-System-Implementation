@@ -73,7 +73,7 @@ int32_t ext2_fsal_mkdir(const char *path)
         return ENOENT;
     }
     
-    return mk_dir(inode, dir_name);
+    return mk_dir(inode, &dir_name);
 
 }
 

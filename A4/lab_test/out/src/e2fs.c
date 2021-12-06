@@ -360,7 +360,7 @@ void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
     inode->i_blocks = 2;
 }
 
-int32_t mk_dir(unsigned int inode, char* dir_name){
+int32_t mk_dir(unsigned int inode, char** dir_name){
     struct ext2_inode* ext2_inode = &inode_table[inode];
     int last_block = (ext2_inode->i_blocks / 2) - 1;
     int block_num = ext2_inode->i_block[last_block];
@@ -385,7 +385,7 @@ int32_t mk_dir(unsigned int inode, char* dir_name){
 
             //Left size.
             int tmp = dir_entry->rec_len - size;
-            if (tmp < 8 + strlen(dir_name)){
+            if (tmp < 8 + strlen(*dir_name)){
                 //Initialize . , .. and its directory block.
                 //update block_bitmap and inode_bitmap
 
@@ -407,7 +407,7 @@ int32_t mk_dir(unsigned int inode, char* dir_name){
 
                 //Initialize added directory.
                 new = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
-                init_new_dir_in_old_block(new, dir_name, (unsigned short) 1000, itself_inode);
+                init_new_dir_in_old_block(new, *dir_name, (unsigned short) 1000, itself_inode);
 
                 return 0;
             } else{
@@ -415,7 +415,7 @@ int32_t mk_dir(unsigned int inode, char* dir_name){
                 //still have available space.
                 //Initialize a directory entry and add it to the last
                 new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
-                init_new_dir_in_old_block(new, dir_name, tmp, itself_inode);
+                init_new_dir_in_old_block(new, *dir_name, tmp, itself_inode);
                 return 0;
             }
         }
