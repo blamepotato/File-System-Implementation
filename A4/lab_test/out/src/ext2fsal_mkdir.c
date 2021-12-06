@@ -39,7 +39,6 @@ int32_t ext2_fsal_mkdir(const char *path)
 
     char* trimmed_path = escape_path(path_copy, &error);
     if(error != 0){
-        printf("%d", error);
         return error;
     }
     char** path_and_name = get_path_and_name(trimmed_path);
@@ -49,7 +48,6 @@ int32_t ext2_fsal_mkdir(const char *path)
     
     unsigned int inode = find_last_inode(dir_path, &error);
     if(error != 0){
-        printf("%d", error);
         return error;
     }
 
@@ -58,7 +56,6 @@ int32_t ext2_fsal_mkdir(const char *path)
     if (check != 0){
         //If the specified directory already exists, 
         //then this operation should return EEXIST.
-        printf("%d", check);
         return check;
     }
     
