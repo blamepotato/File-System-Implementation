@@ -19,7 +19,19 @@
 #include <string.h>
 #include <errno.h>
 
+extern unsigned char *disk;
+extern struct ext2_super_block *sb;
+extern struct ext2_group_desc *gd;
+extern struct ext2_inode *inode_table;
+extern unsigned char *block_bitmap;
+extern unsigned char *inode_bitmap;
 
+
+extern pthread_mutex_t sb_lock;
+extern pthread_mutex_t gd_lock;
+extern pthread_mutex_t inode_table_lock;
+extern pthread_mutex_t block_bitmap_lock;
+extern pthread_mutex_t inode_bitmap_lock;
 int32_t ext2_fsal_rm(const char *path)
 {
     // 1. check and reformat input path
