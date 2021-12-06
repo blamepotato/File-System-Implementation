@@ -29,11 +29,11 @@ struct ext2_inode* inode_table;
 unsigned char* block_bitmap;
 unsigned char* inode_bitmap;
 
-extern pthread_mutex_t sb_lock;
-extern pthread_mutex_t gd_lock;
-extern pthread_mutex_t inode_table_lock;
-extern pthread_mutex_t block_bitmap_lock;
-extern pthread_mutex_t inode_bitmap_lock;
+pthread_mutex_t sb_lock;
+pthread_mutex_t gd_lock;
+pthread_mutex_t inode_table_lock;
+pthread_mutex_t block_bitmap_lock;
+pthread_mutex_t inode_bitmap_lock;
 
 void ext2_fsal_init(const char* image)
 {
@@ -58,7 +58,7 @@ void ext2_fsal_init(const char* image)
     inode_table = (struct ext2_inode *) (disk + 1024 * gd->bg_inode_table);
     block_bitmap = (unsigned char *) (disk + 1024 * gd->bg_block_bitmap);
     inode_bitmap = (unsigned char *) (disk + 1024 * gd->bg_inode_bitmap);
-    
+
     pthread_mutex_init(&sb_lock, NULL);
     pthread_mutex_init(&gd_lock, NULL);
     pthread_mutex_init(&inode_table_lock, NULL);
