@@ -26,6 +26,12 @@ extern struct ext2_inode *inode_table;
 extern unsigned char *block_bitmap;
 extern unsigned char *inode_bitmap;
 
+extern pthread_mutex_t sb_lock;
+extern pthread_mutex_t gd_lock;
+extern pthread_mutex_t inode_table_lock;
+extern pthread_mutex_t block_bitmap_lock;
+extern pthread_mutex_t inode_bitmap_lock;
+
 char* get_source(char* src_copy, int* error){
     // saves the content of a file into a pointer 
 	FILE *fp = fopen(src_copy, "r");
