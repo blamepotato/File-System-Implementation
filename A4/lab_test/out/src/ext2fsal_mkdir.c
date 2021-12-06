@@ -27,12 +27,6 @@ extern struct ext2_inode *inode_table;
 extern unsigned char *block_bitmap;
 extern unsigned char *inode_bitmap;
 
-extern pthread_mutex_t sb_lock;
-extern pthread_mutex_t gd_lock;
-extern pthread_mutex_t inode_table_lock;
-extern pthread_mutex_t block_bitmap_lock;
-extern pthread_mutex_t inode_bitmap_lock;
-
 int32_t ext2_fsal_mkdir(const char *path)
 {
     
@@ -106,22 +100,21 @@ int32_t ext2_fsal_mkdir(const char *path)
                 int unused_block_num = find_an_unused_block();
 
                 //Initialize .
+                //might have problem here.
                 dir_entry = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
                 init_first_dir(dir_entry, inode);
 
                 //Initialize ..
                 dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+                //Have problem here, I cannot get parent's inode.
                 init_second_dir(dir_entry, parent_inode);
-                dir_entry->rec_len = 12;
-
-                //update inode info.
-                ext2_inode->i_block[ext2_inode->i_blocks / 2] = unused_block_num;
-                ext2_inode->i_blocks += 2;
 
                 //Initialize added directory.
-                new = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
-                init_new_dir_in_old_block(new, dir_name, (unsigned short) 1000, itself_inode);
+                dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+                init_new_dir_in_new_block(dir_entry, dir_name, itself_inode);
 
+                //update inode info.
+                update_inode_blocks(ext2_inode, unused_block_num);
                 return 0;
             } else{
                 dir_entry->rec_len = size;

@@ -17,7 +17,6 @@
 #include <stdint.h>
 #include "ext2.h"
 #include <string.h>
-#include <pthread.h>
 
 // disk 
 extern unsigned char *disk;
@@ -27,11 +26,7 @@ extern struct ext2_inode *inode_table;
 extern unsigned char *block_bitmap;
 extern unsigned char *inode_bitmap;
 
-extern pthread_mutex_t sb_lock;
-extern pthread_mutex_t gd_lock;
-extern pthread_mutex_t inode_table_lock;
-extern pthread_mutex_t block_bitmap_lock;
-extern pthread_mutex_t inode_bitmap_lock;
+
 
 
 
