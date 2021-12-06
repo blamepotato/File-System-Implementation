@@ -360,7 +360,7 @@ void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
     inode->i_blocks = 2;
 }
 
-void mk_dir(unsigned int inode, char* dir_name){
+int32_t mk_dir(unsigned int inode, char* dir_name){
     struct ext2_inode* ext2_inode = &inode_table[inode];
     int last_block = (ext2_inode->i_blocks / 2) - 1;
     int block_num = ext2_inode->i_block[last_block];
@@ -421,4 +421,6 @@ void mk_dir(unsigned int inode, char* dir_name){
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
     }
+
+    return 0;
 }
