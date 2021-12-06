@@ -42,10 +42,6 @@ int32_t ext2_fsal_mkdir(const char *path)
     if(error != 0){
         return error;
     }
-    
-    if(trimmed_path[strlen(trimmed_path) - 1] == '/'){
-        trimmed_path[strlen(trimmed_path) - 1] = '\0';
-    }
 
     char** path_and_name = get_path_and_name(trimmed_path);
     char* dir_path = path_and_name[0];
