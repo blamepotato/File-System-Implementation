@@ -36,17 +36,24 @@ int32_t ext2_fsal_mkdir(const char *path)
     char path_copy[strlen(path) + 1];
     strcpy(path_copy, path);
     path_copy[strlen(path)] = '\0';
-
-
+    
     char* trimmed_path = escape_path(path_copy, &error, &has_slash);
     
     if(error != 0){
         return error;
     }
 
+    if (strlen(trimmed_path) == 1){
+        return EEXIST;
+    }
+
     char** path_and_name = get_path_and_name(trimmed_path);
     char* dir_path = path_and_name[0];
     char* dir_name = path_and_name[1];
+    
+    if(strlen(dir_name) > EXT2_NAME_LEN){
+        return ENAMETOOLONG;
+    }
     // 2. Validate path 
     
     unsigned int inode = find_last_inode(dir_path, &error);
