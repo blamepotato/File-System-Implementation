@@ -38,6 +38,11 @@ int32_t ext2_fsal_mkdir(const char *path)
 
 
     char* trimmed_path = escape_path(path_copy, &error);
+    
+    if(trimmed_path[strlen(trimmed_path) - 1] == '/'){
+        trimmed_path[strlen(trimmed_path) - 1] = '\0';
+    }
+
     if(error != 0){
         return error;
     }
@@ -119,7 +124,7 @@ int32_t ext2_fsal_mkdir(const char *path)
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
     }
-    
+
     return 0;
 }
 

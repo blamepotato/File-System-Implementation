@@ -81,9 +81,7 @@ char* escape_path(char* path, int* error){
             prev = path[i];
         }  
     }
-    if(trimmed_path[strlen(trimmed_path) - 1] == '/'){
-        trimmed_path[strlen(trimmed_path) - 1] = '\0';
-    }
+    
     return trimmed_path;
 }
 
