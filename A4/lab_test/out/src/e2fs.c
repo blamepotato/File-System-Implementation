@@ -198,6 +198,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 
 
 int check_current_inode(unsigned int inode, char* current_name){
+    // 1 = dir 2 = file 0 = not found 
     struct ext2_inode ext2_inode = inode_table[inode];
     int block_num;
     struct ext2_dir_entry *dir_entry;
@@ -214,14 +215,10 @@ int check_current_inode(unsigned int inode, char* current_name){
             }
 
             if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
-                //The name is exist.
-                // Argument: "/foo/bar/blah", where the path is valid up to "blah" and "blah" is an already existing
-                //directory. This should return EEXIST. Same thing if blah had a trailing "/".
-                //3. Argument: "/foo/bar/blah/", where both "foo" and "bar" exist but "blah" is an existing file. This
-                //should return ENOENT.
-                return ENOENT;
+            
+                return 2;
             } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
-                return EEXIST;
+                return 1;
             }
             used_size += dir_entry->rec_len;
             dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
