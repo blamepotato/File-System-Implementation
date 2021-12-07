@@ -81,6 +81,7 @@ int32_t ext2_fsal_rm(const char *path)
     // update: sb gd imap bmap inodetable
 
     struct ext2_inode ext2_inode = inode_table[inode];
+
     int block_num;
     struct ext2_dir_entry *dir_entry;
 
@@ -122,13 +123,18 @@ int32_t ext2_fsal_rm(const char *path)
     printf("before that entry: %d\n", before_that_entry->inode);
     //that_dir and before_that_dir should be what we want
     //update inode bitmap
+    found = 0;
     int count = 1;
     for (int byte=0; byte<(32/8); byte++){
+        if (found == 1){
+            break;
+        }
         for (int bit=0; bit<8; bit++){
             //Skip the reserved blocks.
             if (count == that_entry->inode){
+                found = 1;
                 inode_bitmap[byte] &= (0<<bit);
-                //break? better to end the for loops here.
+                break;
             }
             count++;
         }
@@ -149,7 +155,7 @@ int32_t ext2_fsal_rm(const char *path)
         before_that_entry->rec_len += that_entry->rec_len;
     }
 
-    inode_table[that_entry->inode].i_dtime = time(NULL);
+    inode_dir->i_dtime = time(NULL);
 
     sb->s_free_inodes_count++;
     gd->bg_free_inodes_count++;
