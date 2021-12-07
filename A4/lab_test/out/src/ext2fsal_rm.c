@@ -143,33 +143,14 @@ int32_t ext2_fsal_rm(const char *path)
             //Skip the reserved blocks.
             if (count == deleted_inode){
                 changed = 1;
-                inode_bitmap[byte] &= (0<<bit);
+                //Have problem here.
+                inode_bitmap[byte] &= (((unsigned int) 127) & 0<<bit);
                 printf("Here: %d\n", count);
                 break;
             }
             count++;
         }
     }
-
-    /**
-    int count = 1;
-    
-    found = 0;
-    for (int byte=0; byte<(32/8); byte++){
-        if (found == 1){
-            break;
-        }
-        for (int bit=0; bit<8; bit++){
-            //Skip the reserved blocks.
-            if (count == that_entry->inode){
-                found = 1;
-                inode_bitmap[byte] &= (0<<bit);
-                break;
-            }
-            count++;
-        }
-    }
-    */
 
     return 0;
 }
