@@ -78,6 +78,37 @@ int32_t ext2_fsal_rm(const char *path)
     
     //file dir entry
     //before file dir entry
-    // update: sb gd imap bmap inodetable 
+    // update: sb gd imap bmap inodetable
+
+    struct ext2_inode ext2_inode = inode_table[inode];
+    int block_num;
+    struct ext2_dir_entry *dir_entry;
+    for(int i = 0; i < ext2_inode.i_blocks / 2; i++){
+        block_num = ext2_inode.i_block[i];
+        dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
+
+        int used_size = 0;
+        //https://piazza.com/class/ks5i8qv0pqn139?cid=736
+        while (used_size < EXT2_BLOCK_SIZE){
+            char name[dir_entry->name_len + 1];
+            name[dir_entry->name_len] = '\0';
+            for (int i = 0;i < dir_entry->name_len;i++){
+                name[i] = dir_entry->name[i];
+            }
+
+            if (strcmp(name, dir_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
+            
+                return 2;
+            } else if (strcmp(name, dir_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
+                return 1;
+            }
+            used_size += dir_entry->rec_len;
+            dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+
+            //how to set i_dtime
+            //first get a dirctory with the same name, and then get a file with the same name.
+            //what should I do.
+    }
+
     return 0;
 }
