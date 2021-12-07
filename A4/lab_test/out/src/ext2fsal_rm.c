@@ -87,10 +87,10 @@ int32_t ext2_fsal_rm(const char *path)
     struct ext2_dir_entry *that_entry;
     struct ext2_dir_entry *before_that_entry;
     int used_size;
-    int check = 0;
+    int found = 0;
 
     for(int i = 0; i < ext2_inode.i_blocks / 2; i++){
-        if (check == 1){
+        if (found == 1){
             break;
         }
         block_num = ext2_inode.i_block[i];
@@ -108,7 +108,7 @@ int32_t ext2_fsal_rm(const char *path)
 
             if (strcmp(name, dir_name) == 0){
                 that_entry = dir_entry;
-                check = 1;
+                found = 1;
                 break;
             }
             used_size += dir_entry->rec_len;
