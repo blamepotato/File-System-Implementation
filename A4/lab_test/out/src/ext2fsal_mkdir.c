@@ -90,7 +90,7 @@ int32_t ext2_fsal_mkdir(const char *path)
     //.'s inode
     int itself_inode = dir_entry->inode;
     //..'s inode
-    int parent_inode = ((struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len))->inode;
+    //int parent_inode = ((struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len))->inode;
 
     struct ext2_dir_entry *new;
     //https://piazza.com/class/ks5i8qv0pqn139?cid=736
@@ -116,23 +116,20 @@ int32_t ext2_fsal_mkdir(const char *path)
                 //find an unused block and add it to inode info.
                 int unused_block_num = find_an_unused_block();
 
-                //Initialize .
-                //might have problem here.
-                dir_entry = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
-                init_first_dir(dir_entry, inode);
+                struct ext2_dir_entry* new_dir_entry_in_new_block = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
 
-                //Initialize ..
-                dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
-                //Have problem here, I cannot get parent's inode.
-                init_second_dir(dir_entry, parent_inode);
+                //No need to initialize . and .. in the new block
 
                 //Initialize added directory.
-                dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
-                init_new_dir_in_new_block(dir_entry, dir_name, itself_inode);
+                init_new_dir_in_new_block(new_dir_entry_in_new_block, dir_name, itself_inode);
 
                 //update inode info.
-                update_inode_blocks(&ext2_inode, unused_block_num);
+                //update_inode_blocks(&ext2_inode, unused_block_num);
+                struct ext2_inode* dir_inode = &inode_table[dir_entry->inode - 1];
+                dir_inode->i_block[dir_inode->i_blocks / 2] = unused_block_num;
+                dir_inode->i_blocks += 2;
                 return 0;
+
             } else{
                 dir_entry->rec_len = size;
                 //still have available space.

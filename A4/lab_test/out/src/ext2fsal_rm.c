@@ -118,6 +118,8 @@ int32_t ext2_fsal_rm(const char *path)
         }
     }
 
+    printf("that entry: %d\n", that_entry->inode);
+    printf("before that entry: %d\n", before_that_entry->inode);
     //that_dir and before_that_dir should be what we want
     //update inode bitmap
     int count = 1;
