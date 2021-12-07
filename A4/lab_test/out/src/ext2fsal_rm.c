@@ -125,7 +125,6 @@ int32_t ext2_fsal_rm(const char *path)
     int count = 1;
     int deleted_inode = that_entry->inode;
     found = 0;
-    int count = 1;
     for (int byte=0; byte<(32/8); byte++){
         if (found == 1){
             break;
