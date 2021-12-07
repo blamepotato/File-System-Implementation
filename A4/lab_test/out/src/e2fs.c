@@ -258,8 +258,8 @@ int find_an_unused_block(){
         for (int bit=0; bit<8; bit++){
             if ((block_bitmap[byte]&(1<<bit)) == 0){
                 block_bitmap[byte] |= (1<<bit);
-                // sb->s_free_blocks_count--;
-                // gd->bg_free_blocks_count--;
+                sb->s_free_blocks_count--;
+                gd->bg_free_blocks_count--;
                 return count + 1;
             }
             count++;
@@ -362,8 +362,8 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     //ext2_inode.i_blocks = 2;
     //ext2_inode.i_block[0] = unused_block_num;
     update_inode_blocks(ext2_inode, unused_block_num);
-    sb->s_free_blocks_count--;
-    gd->bg_free_blocks_count--;
+    // sb->s_free_blocks_count--;
+    // gd->bg_free_blocks_count--;
     // sb->s_free_inodes_count--;
     // gd->bg_free_inodes_count--;
     gd->bg_used_dirs_count++;
