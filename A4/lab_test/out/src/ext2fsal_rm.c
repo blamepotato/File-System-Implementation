@@ -143,6 +143,7 @@ int32_t ext2_fsal_rm(const char *path)
             //Skip the reserved blocks.
             if (count == deleted_inode){
                 changed = 1;
+                inode_bitmap[byte] &= (0<<bit);
                 printf("Here: %d\n", count);
                 break;
             }
