@@ -73,12 +73,15 @@ int32_t ext2_fsal_mkdir(const char *path)
     if (check == 1){
         return EEXIST;
     }
-    else if (check == 2){
+    else if (check == 2 || check == 3){
         return ENOENT;
     }
     
     struct ext2_inode ext2_inode = inode_table[inode];
-
+    // no space 
+    if (sb->s_free_inodes_count <= 0) {
+        return ENOSPC;
+    }
 
     int last_block = (ext2_inode.i_blocks / 2) - 1;
     int block_num = ext2_inode.i_block[last_block];
@@ -106,6 +109,10 @@ int32_t ext2_fsal_mkdir(const char *path)
                 //Initialize . , .. and its directory block.
                 //update block_bitmap and inode_bitmap
 
+                //no blocks 
+                if(sb->s_free_blocks_count <= 0){
+                    return ENOSPC;
+                }
                 //find an unused block and add it to inode info.
                 int unused_block_num = find_an_unused_block();
 

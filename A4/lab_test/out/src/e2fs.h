@@ -22,6 +22,7 @@
  * Implement the helpers in e2fs.c
  */
 
+extern char* get_source(char* src_copy, long long* size, int* error);
 extern char* escape_path(char* path, int* error, int* has_slash);
 extern char** get_path_and_name(char* trimmed_path);
 extern unsigned int find_last_inode(char *dir_path, int* error);
@@ -34,7 +35,6 @@ extern void init_second_dir(struct ext2_dir_entry * dir_entry, int inode);
 extern void init_new_dir_in_new_block(struct ext2_dir_entry * dir_entry, char* dir_name, int parent_inode);
 extern void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name, unsigned short rec_len, int parent_inode);
 extern void update_inode_blocks(struct ext2_inode *inode, int unused_block_num);
-extern char* get_source(char* src_copy, int* error);
 extern int check_current_inode(unsigned int inode, char* current_name);
 void update_block_bitmap_in_rm(struct ext2_inode* inode_dir);
 

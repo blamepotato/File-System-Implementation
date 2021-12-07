@@ -32,7 +32,7 @@ extern pthread_mutex_t inode_table_lock;
 extern pthread_mutex_t block_bitmap_lock;
 extern pthread_mutex_t inode_bitmap_lock;
 
-char* get_source(char* src_copy, int* error){
+char* get_source(char* src_copy, long long* size, int* error){
     // saves the content of a file into a pointer 
 	FILE *fp = fopen(src_copy, "r");
 
@@ -43,11 +43,11 @@ char* get_source(char* src_copy, int* error){
     // https://stackoverflow.com/questions/238603/how-can-i-get-a-files-size-in-c
 	fseek(fp, (long)0, SEEK_END);
 
-	long long size = (long long)ftell(fp);
+	*size = (long long)ftell(fp);
 	rewind(fp);
 
-	char* ptr = calloc(1, size + 1);
-	if (fread(ptr, size, 1, fp) != 1) {
+	char* ptr = calloc(1, *size + 1);
+	if (fread(ptr, *size, 1, fp) != 1) {
         *error = ENOENT;
 		return 0;
 	}
@@ -222,7 +222,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 
 
 int check_current_inode(unsigned int inode, char* current_name){
-    // 1 = dir 2 = file 0 = not found 
+    // 1 = dir 2 = file 0 = not found 3 link
     struct ext2_inode ext2_inode = inode_table[inode];
     int block_num;
     struct ext2_dir_entry *dir_entry;
@@ -239,10 +239,13 @@ int check_current_inode(unsigned int inode, char* current_name){
             }
 
             if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
-            
                 return 2;
             } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
                 return 1;
+            }
+
+            else if(strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_SYMLINK){
+                return 3;
             }
             used_size += dir_entry->rec_len;
             dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
@@ -362,7 +365,10 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     //ext2_inode.i_blocks = 2;
     //ext2_inode.i_block[0] = unused_block_num;
     update_inode_blocks(ext2_inode, unused_block_num);
-
+    // sb->s_free_blocks_count--;
+    // gd->bg_free_blocks_count--;
+    // sb->s_free_inodes_count--;
+    // gd->bg_free_inodes_count--;
     gd->bg_used_dirs_count++;
 }
 
