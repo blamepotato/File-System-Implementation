@@ -122,6 +122,7 @@ int32_t ext2_fsal_rm(const char *path)
     printf("before that entry: %d\n", before_that_entry->inode);
     //that_dir and before_that_dir should be what we want
     
+    /**
     int count = 1;
     int deleted_inode = that_entry->inode;
     found = 0;
@@ -147,6 +148,7 @@ int32_t ext2_fsal_rm(const char *path)
         //Other
         before_that_entry->rec_len += that_entry->rec_len;
     }
+    */
 
     return 0;
 }
