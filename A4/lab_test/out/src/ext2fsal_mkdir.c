@@ -87,7 +87,7 @@ int32_t ext2_fsal_mkdir(const char *path)
     //.'s inode
     int itself_inode = dir_entry->inode;
     //..'s inode
-    int parent_inode = ((struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len))->inode;
+    //int parent_inode = ((struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len))->inode;
 
     struct ext2_dir_entry *new;
     //https://piazza.com/class/ks5i8qv0pqn139?cid=736
