@@ -144,7 +144,7 @@ int32_t ext2_fsal_rm(const char *path)
             if (count == deleted_inode){
                 changed = 1;
                 //Have problem here.
-                inode_bitmap[byte] &= (127 & (0<<bit));
+                //inode_bitmap[byte] &= (127 & (0<<bit));
                 printf("Here: %d\n", count);
                 break;
             }
@@ -152,5 +152,11 @@ int32_t ext2_fsal_rm(const char *path)
         }
     }
 
+    struct ext2_inode* inode_dir = &inode_table[that_entry->inode - 1];
+
+    for (int i = 0; i < inode_dir->i_blocks / 2; i++){
+        printf("Block: %d\n", inode_dir->i_block[i]);
+    }
+    
     return 0;
 }
