@@ -118,10 +118,12 @@ int32_t ext2_fsal_rm(const char *path)
         }
     }
 
-    printf("that entry: %d\n", that_entry->inode);
-    printf("before that entry: %d\n", before_that_entry->inode);
+    //printf("that entry: %d\n", that_entry->inode);
+    //printf("before that entry: %d\n", before_that_entry->inode);
     //that_dir and before_that_dir should be what we want
     
+    int deleted_inode = that_entry->inode;
+
     if (used_size == 0){
         //The file is the first file in the block.
         that_entry->inode = 0;
@@ -129,9 +131,28 @@ int32_t ext2_fsal_rm(const char *path)
         //Other
         before_that_entry->rec_len += that_entry->rec_len;
     }
+
+    //Here Correct.
+    int count = 1;
+    int changed = 0;
+    for (int byte=0; byte<(32/8); byte++){
+        if (changed == 1){
+            break;
+        }
+        for (int bit=0; bit<8; bit++){
+            //Skip the reserved blocks.
+            if (count == deleted_inode){
+                changed = 1;
+                printf("Here: %d\n", count);
+                break;
+            }
+            count++;
+        }
+    }
+
     /**
     int count = 1;
-    int deleted_inode = that_entry->inode;
+    
     found = 0;
     for (int byte=0; byte<(32/8); byte++){
         if (found == 1){
