@@ -113,7 +113,6 @@ int32_t ext2_fsal_rm(const char *path)
                 break;
             }
             used_size += dir_entry->rec_len;
-            //might have problem here.
             before_that_entry = dir_entry;
             dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
         }
@@ -122,7 +121,9 @@ int32_t ext2_fsal_rm(const char *path)
     printf("that entry: %d\n", that_entry->inode);
     printf("before that entry: %d\n", before_that_entry->inode);
     //that_dir and before_that_dir should be what we want
-    //update inode bitmap
+    
+    int count = 1;
+    int deleted_inode = that_entry->inode;
     found = 0;
     int count = 1;
     for (int byte=0; byte<(32/8); byte++){
@@ -140,13 +141,6 @@ int32_t ext2_fsal_rm(const char *path)
         }
     }
 
-    //links can also be deleted, how?
-
-    //// update: sb gd imap bmap inodetable
-    struct ext2_inode* inode_dir = &inode_table[that_entry->inode - 1];
-    //block bitmap, zero the blocks that that_file uses.
-    update_block_bitmap_in_rm(inode_dir);
-
     if (used_size == 0){
         //The file is the first file in the block.
         that_entry->inode = 0;
@@ -155,12 +149,5 @@ int32_t ext2_fsal_rm(const char *path)
         before_that_entry->rec_len += that_entry->rec_len;
     }
 
-    inode_dir->i_dtime = time(NULL);
-
-    sb->s_free_inodes_count++;
-    gd->bg_free_inodes_count++;
-    //what if the file is the only file in the block and we delete it, the block should be free?
-    
-    //check if the inode number is 0 or not.
     return 0;
 }
