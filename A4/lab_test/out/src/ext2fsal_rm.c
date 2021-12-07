@@ -86,13 +86,18 @@ int32_t ext2_fsal_rm(const char *path)
 
     struct ext2_dir_entry *that_entry;
     struct ext2_dir_entry *before_that_entry;
+    int used_size;
+    int check = 0;
 
     for(int i = 0; i < ext2_inode.i_blocks / 2; i++){
+        if (check == 1){
+            break;
+        }
         block_num = ext2_inode.i_block[i];
         dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
 
         before_that_entry = dir_entry;
-        int used_size = 0;
+        used_size = 0;
         //https://piazza.com/class/ks5i8qv0pqn139?cid=736
         while (used_size < EXT2_BLOCK_SIZE){
             char name[dir_entry->name_len + 1];
@@ -103,12 +108,14 @@ int32_t ext2_fsal_rm(const char *path)
 
             if (strcmp(name, dir_name) == 0){
                 that_entry = dir_entry;
+                check = 1;
                 break;
             }
             used_size += dir_entry->rec_len;
             //might have problem here.
             before_that_entry = dir_entry;
             dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+        }
     }
 
     //that_dir and before_that_dir should be what we want
@@ -139,7 +146,7 @@ int32_t ext2_fsal_rm(const char *path)
         //Other
         before_that_entry->rec_len += that_entry->rec_len;
     }
-    
+
     inode_table[that_entry->inode].i_dtime = time(NULL);
 
     sb->s_free_inodes_count++;
