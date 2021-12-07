@@ -83,10 +83,15 @@ int32_t ext2_fsal_rm(const char *path)
     struct ext2_inode ext2_inode = inode_table[inode];
     int block_num;
     struct ext2_dir_entry *dir_entry;
+
+    struct ext2_dir_entry *that_entry;
+    struct ext2_dir_entry *before_that_entry;
+
     for(int i = 0; i < ext2_inode.i_blocks / 2; i++){
         block_num = ext2_inode.i_block[i];
         dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
 
+        before_that_entry = dir_entry;
         int used_size = 0;
         //https://piazza.com/class/ks5i8qv0pqn139?cid=736
         while (used_size < EXT2_BLOCK_SIZE){
@@ -96,19 +101,51 @@ int32_t ext2_fsal_rm(const char *path)
                 name[i] = dir_entry->name[i];
             }
 
-            if (strcmp(name, dir_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
-            
-                return 2;
-            } else if (strcmp(name, dir_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
-                return 1;
+            if (strcmp(name, dir_name) == 0){
+                that_entry = dir_entry;
+                break;
             }
             used_size += dir_entry->rec_len;
+            //might have problem here.
+            before_that_entry = dir_entry;
             dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
-
-            //how to set i_dtime
-            //first get a dirctory with the same name, and then get a file with the same name.
-            //what should I do.
     }
 
+    //that_dir and before_that_dir should be what we want
+    //update inode bitmap
+    int count = 1;
+    for (int byte=0; byte<(32/8); byte++){
+        for (int bit=0; bit<8; bit++){
+            //Skip the reserved blocks.
+            if (count == that_entry->inode){
+                inode_bitmap[byte] &= (0<<bit);
+                //break? better to end the for loops here.
+            }
+            count++;
+        }
+    }
+
+    //links can also be deleted, how?
+
+    //// update: sb gd imap bmap inodetable
+    struct ext2_inode* inode_dir = &inode_table[that_entry->inode - 1];
+    //block bitmap, zero the blocks that that_file uses.
+    update_block_bitmap_in_rm(inode_dir);
+
+    if (used_size == 0){
+        //The file is the first file in the block.
+        that_entry->inode = 0;
+    } else {
+        //Other
+        before_that_entry->rec_len += that_entry->rec_len;
+    }
+    
+    inode_table[that_entry->inode].i_dtime = time(NULL);
+
+    sb->s_free_inodes_count++;
+    gd->bg_free_inodes_count++;
+    //what if the file is the only file in the block and we delete it, the block should be free?
+    
+    //check if the inode number is 0 or not.
     return 0;
 }

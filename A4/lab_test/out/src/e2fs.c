@@ -56,6 +56,24 @@ char* get_source(char* src_copy, int* error){
 	return ptr;
 }
 
+void update_block_bitmap_in_rm(struct ext2_inode* inode_dir){
+    for (int i = 0; i < inode_dir->i_blocks / 2; i++){
+        int block_num = inode_dir->i_block[i];
+        int count = 1;
+        //block_num starts at 1?
+        for (int byte=0; byte<(128/8); byte++){
+            for (int bit=0; bit<8; bit++){
+                if (count == block_num){
+                    block_bitmap[byte] &= (0<<bit);
+                    //should end these two for loop.
+                }
+                count++;
+            }
+        }
+        sb->s_free_blocks_count++;
+        gd->bg_free_blocks_count++;
+    }
+}
 
 char* escape_path(char* path, int* error, int* has_slash){
     /*
