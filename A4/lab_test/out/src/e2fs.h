@@ -22,6 +22,7 @@
  * Implement the helpers in e2fs.c
  */
 
+extern void cp_to_blocks(char* source, char* src_name, int inode, int blocks_needed, long long size, int mode);
 extern char* get_source(char* src_copy, long long* size, int* error);
 extern char* escape_path(char* path, int* error, int* has_slash);
 extern char** get_path_and_name(char* trimmed_path);

@@ -35,7 +35,7 @@ extern pthread_mutex_t inode_table_lock;
 extern pthread_mutex_t block_bitmap_lock;
 extern pthread_mutex_t inode_bitmap_lock;
 
-void cp_write(char* source, char* src_name, int inode, int blocks_needed, long long size, int mode){
+void cp_to_blocks(char* source, char* src_name, int inode, int blocks_needed, long long size, int mode){
 
 
 
@@ -58,7 +58,8 @@ char* get_source(char* src_copy, long long* size, int* error){
     struct stat statbuf;
     stat(src_copy, &statbuf);
     if (S_ISDIR(statbuf.st_mode)){
-        return EISDIR;
+        *error = EISDIR;
+        return 0;
     }
 
     // https://stackoverflow.com/questions/238603/how-can-i-get-a-files-size-in-c
@@ -67,7 +68,8 @@ char* get_source(char* src_copy, long long* size, int* error){
 	*size = (long long)ftell(fp);
 
     if(size == 0){
-        return ENOENT;
+        *error = ENOENT;
+        return 0;
     }
 
 	rewind(fp);
