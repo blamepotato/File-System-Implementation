@@ -48,17 +48,25 @@ void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int bl
 
         int prev_rec_len = (int) dst_entry->rec_len;
         dst_entry->name_len = strlen(src_name);
-        int size = 8 + (int) dst_entry->name_len;
+        int rec_size = 8 + (int) dst_entry->name_len;
         //make it be multiple of 4
-        size += (4 - size % 4);
-        dst_entry->rec_len = size;
+        rec_size += (4 - rec_size % 4);
+        dst_entry->rec_len = rec_size;
         // negative if src len > dst len, positive if src len < dst len
-        int diff = prev_rec_len - size;
+        int diff = prev_rec_len - rec_size;
         last_entry->rec_len += diff;
+        struct ext2_inode* dst_inode = &inode_table[dst_entry->inode];
+        dst_inode->i_size = size;
         // if dst file is smaller than src, 
+        if(blocks_needed - dst_inode->i_blocks / 2 > 0){
+            int extra_blocks = blocks_needed - dst_inode->i_blocks / 2;
+            for(int i = dst_inode->i_blocks / 2; i <= extra_blocks; i++){
+                if(i == 12){ // indirect pointer 
+                    dst_inode->i_block[12] = find_an_unused_block();
+                    int block_num = dst_inode->i_block[12];
 
-        if(inode_ptr->i_blocks / 2 < blocks_needed){
-
+                }
+            }
         }
         else{
 
@@ -72,10 +80,97 @@ void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int bl
 
     }
     else if(mode == 1){
-
+        // copy file into an empty dir
+        struct ext2_dir_entry* file_entry = make_file_entry(src_name, inode);
+        struct ext2_inode* file_inode = &inode_table[file_entry->inode];
+        int indirect = 0; // indirect block number 
+        for(;currect_block < blocks_needed; currect_block++){
+            int block_num;
+            if(currect_block < 12){
+                block_num = find_an_unused_block();
+                file_inode->i_block[currect_block] = block_num;
+            }
+            else if(currect_block == 12){
+                indirect = find_an_unused_block();
+                file_inode->i_block[12] = indirect;
+                file_inode->i_blocks += 2;
+            }
+            else{
+                block_num = find_an_unused_block();
+                unsigned int *indirect_block = (unsigned int *) (disk + indirect * EXT2_BLOCK_SIZE);
+                indirect_block[currect_block - 12] = block_num;
+            }
+            // finally... memcpy time 
+            char *block = (char*) (disk + block_num * EXT2_BLOCK_SIZE);
+            if(currect_block < blocks_needed - 1){
+                memcpy(block, &source[currect_block * EXT2_BLOCK_SIZE], EXT2_BLOCK_SIZE);
+            }
+            else if(currect_block == blocks_needed - 1){
+                memcpy(block, &source[currect_block * EXT2_BLOCK_SIZE], size - EXT2_BLOCK_SIZE * (blocks_needed - 1)); // remaining size
+            }
+            file_inode->i_blocks += 2;
+            currect_block++;
+        }
+        file_inode->i_size = size;  
     }
 
 }
+
+void update_block_bitmap_in_rm(struct ext2_inode* inode_dir){
+    for (int i = 0; i < inode_dir->i_blocks / 2; i++){
+        int block_num = inode_dir->i_block[i];
+
+        int count = 1;
+        int found = 0;
+        for (int byte=0; byte<(128/8); byte++){
+            if (found == 1){
+                break;
+            }
+            for (int bit=0; bit<8; bit++){
+                if (count == block_num){
+                    block_bitmap[byte] &= ~(1<<bit);
+                    found = 1;
+                    break;
+                }
+                count++;
+            }
+        }
+        sb->s_free_blocks_count++;
+        gd->bg_free_blocks_count++;
+
+        if (i == 12){
+            int num = inode_dir->i_blocks / 2 - 13;
+            unsigned int* new_block_list = (unsigned int *) (disk + 1024 * block_num);
+            update_new_block_list(new_block_list, num);
+            break;
+        }
+    }
+}
+
+void update_new_block_list(unsigned int* new_block_list, int num){
+    for (int i = 0; i < num; i++){
+        int block_num = new_block_list[i];
+        int count = 1;
+        int found = 0;
+
+        for (int byte=0; byte<(128/8); byte++){
+            if (found == 1){
+                break;
+            }
+            for (int bit=0; bit<8; bit++){
+                if (count == block_num){
+                    block_bitmap[byte] &= ~(1<<bit);
+                    found = 1;
+                    break;
+                }
+                count++;
+            }
+        }
+        sb->s_free_blocks_count++;
+        gd->bg_free_blocks_count++;
+    }
+}
+
 
 struct ext2_dir_entry** find_dst_and_last_entry(struct ext2_inode* inode, char* dst_name){
     struct ext2_dir_entry** curr_and_last = calloc(2, sizeof(struct ext2_dir_entry*));
@@ -107,7 +202,7 @@ struct ext2_dir_entry** find_dst_and_last_entry(struct ext2_inode* inode, char* 
     return curr_and_last;
 }
 
-struct ext2_dir_entry* make_file_entry(char* src_name, int inode, int* error){
+struct ext2_dir_entry* make_file_entry(char* src_name, int inode){
     struct ext2_inode ext2_inode = inode_table[inode];
     int last_block = (ext2_inode.i_blocks / 2) - 1;
     int block_num = ext2_inode.i_block[last_block];
