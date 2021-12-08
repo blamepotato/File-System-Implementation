@@ -31,6 +31,7 @@ extern pthread_mutex_t gd_lock;
 extern pthread_mutex_t inode_table_lock;
 extern pthread_mutex_t block_bitmap_lock;
 extern pthread_mutex_t inode_bitmap_lock;
+extern pthread_mutex_t inode_locks[32];
 
 
 

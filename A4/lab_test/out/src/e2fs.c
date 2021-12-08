@@ -31,9 +31,10 @@ extern unsigned char *inode_bitmap;
 
 extern pthread_mutex_t sb_lock;
 extern pthread_mutex_t gd_lock;
-extern pthread_mutex_t inode_table_lock;
 extern pthread_mutex_t block_bitmap_lock;
 extern pthread_mutex_t inode_bitmap_lock;
+extern pthread_mutex_t inode_locks[32];
+
 
 void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int blocks_needed, long long size, int mode){
     // overwritting existing file, no need to find new inode
@@ -77,7 +78,7 @@ void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int bl
 }
 
 struct ext2_dir_entry** find_dst_and_last_entry(struct ext2_inode* inode, char* dst_name){
-    struct ext2_dir_entry** curr_and_last;
+    struct ext2_dir_entry** curr_and_last = calloc(2, sizeof(struct ext2_dir_entry*));
     int block_num;
     struct ext2_dir_entry *dir_entry;
 

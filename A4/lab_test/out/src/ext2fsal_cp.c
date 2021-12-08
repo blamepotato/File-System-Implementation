@@ -29,6 +29,12 @@ extern struct ext2_inode *inode_table;
 extern unsigned char *block_bitmap;
 extern unsigned char *inode_bitmap;
 
+extern pthread_mutex_t sb_lock;
+extern pthread_mutex_t gd_lock;
+extern pthread_mutex_t inode_locks[32];
+extern pthread_mutex_t block_bitmap_lock;
+extern pthread_mutex_t inode_bitmap_lock;
+
 int32_t ext2_fsal_cp(const char *src,
                      const char *dst)
 {
