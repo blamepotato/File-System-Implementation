@@ -144,7 +144,7 @@ int32_t ext2_fsal_rm(const char *path)
             if (count == deleted_inode){
                 changed = 1;
                 //Have problem here.
-                //inode_bitmap[byte] &= (127 & (0<<bit));
+                inode_bitmap[byte] &= ~(1<<bit);
                 printf("Here: %d\n", count);
                 break;
             }
