@@ -69,7 +69,6 @@ void update_block_bitmap_in_rm(struct ext2_inode* inode_dir){
                 if (count == block_num){
                     block_bitmap[byte] &= ~(1<<bit);
                     found = 1;
-                    printf("Count: %d\n", count);
                     break;
                 }
                 count++;
