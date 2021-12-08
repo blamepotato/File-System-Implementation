@@ -336,6 +336,30 @@ void update_new_block_list(unsigned int* new_block_list, int num){
     }
 }
 
+void rm_block(int block_num){
+    int count = 1;
+    int found = 0;
+
+    for (int byte=0; byte<(128/8); byte++){
+        if (found == 1){
+            break;
+        }
+        for (int bit=0; bit<8; bit++){
+            if (count == block_num){
+                block_bitmap[byte] &= ~(1<<bit);
+                found = 1;
+                break;
+            }
+            count++;
+        }
+    }
+
+    sb->s_free_blocks_count++;
+    gd->bg_free_blocks_count++;
+
+    return;
+}
+
 char* escape_path(char* path, int* error, int* has_slash){
     /*
      *  returns a path with trailing slashes trimmed 
