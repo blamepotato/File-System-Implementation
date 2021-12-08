@@ -31,7 +31,7 @@ unsigned char* inode_bitmap;
 
 pthread_mutex_t sb_lock;
 pthread_mutex_t gd_lock;
-pthread_mutex_t inode_table_lock;
+pthread_mutex_t inode_locks[32];
 pthread_mutex_t block_bitmap_lock;
 pthread_mutex_t inode_bitmap_lock;
 
@@ -64,12 +64,13 @@ void ext2_fsal_init(const char* image)
     pthread_mutex_init(&inode_table_lock, NULL);
     pthread_mutex_init(&block_bitmap_lock, NULL);
     pthread_mutex_init(&inode_bitmap_lock, NULL);
+    for(int i = 0; i < 32; i++){
+        pthread_mutex_init(&inode_locks[i], NULL);
+    }
     
 }
 
 void ext2_fsal_destroy()
 {
-    /**
-     * TODO: Cleanup tasks, e.g., destroy synchronization primitives, munmap the image, etc.
-     */
+    
 }
