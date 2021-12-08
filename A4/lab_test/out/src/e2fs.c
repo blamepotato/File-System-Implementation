@@ -18,6 +18,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 extern unsigned char *disk;
 extern struct ext2_super_block *sb;
@@ -32,18 +35,41 @@ extern pthread_mutex_t inode_table_lock;
 extern pthread_mutex_t block_bitmap_lock;
 extern pthread_mutex_t inode_bitmap_lock;
 
+void cp_write(char* source, char* src_name, int inode, int blocks_needed, long long size, int mode){
+
+
+
+
+
+
+
+
+}
+
 char* get_source(char* src_copy, long long* size, int* error){
     // saves the content of a file into a pointer 
 	FILE *fp = fopen(src_copy, "r");
-
+    // fail is file doesn't exist or is dir
 	if (fp == NULL) {
         *error = ENOENT;
 		return 0;
 	}
+    // is src is a dir 
+    struct stat statbuf;
+    stat(src_copy, &statbuf);
+    if (S_ISDIR(statbuf.st_mode)){
+        return EISDIR;
+    }
+
     // https://stackoverflow.com/questions/238603/how-can-i-get-a-files-size-in-c
 	fseek(fp, (long)0, SEEK_END);
 
 	*size = (long long)ftell(fp);
+
+    if(size == 0){
+        return ENOENT;
+    }
+
 	rewind(fp);
 
 	char* ptr = calloc(1, *size + 1);
@@ -52,7 +78,6 @@ char* get_source(char* src_copy, long long* size, int* error){
 		return 0;
 	}
 	fclose(fp);
-
 	return ptr;
 }
 
@@ -96,11 +121,7 @@ char* escape_path(char* path, int* error, int* has_slash){
         *error = ENOENT;
         return 0;
     }
-    // mkdir root 
-    if (length == 1){
-        *error = EEXIST;
-        return 0;
-    }
+    
     // get rid of extra slashes 
     char prev = '\0';
     for(int i = 0; i < length; i++){
@@ -225,7 +246,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 }
 
 
-int check_current_inode(unsigned int inode, char* current_name){
+int check_current_inode(unsigned int inode, char* current_name, unsigned int* new_inode){
     // 1 = dir 2 = file 0 = not found 3 link
     struct ext2_inode ext2_inode = inode_table[inode];
     int block_num;
@@ -242,13 +263,16 @@ int check_current_inode(unsigned int inode, char* current_name){
                 name[i] = dir_entry->name[i];
             }
 
-            if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
+            if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_REG_FILE){
+                *new_inode = dir_entry->inode;
                 return 2;
             } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
+                *new_inode = dir_entry->inode;
                 return 1;
             }
 
             else if(strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_SYMLINK){
+                *new_inode = dir_entry->inode;
                 return 3;
             }
             used_size += dir_entry->rec_len;
