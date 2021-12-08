@@ -133,7 +133,7 @@ struct ext2_dir_entry* make_file_entry(char* src_name, int inode, int* error){
                 int unused_block_num = find_an_unused_block();
                 new = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
                 new->file_type = EXT2_FT_REG_FILE;
-                new->inode = find_an_unused_inode;
+                new->inode = find_an_unused_inode();
                 new->name_len = strlen(src_name);
                 for(int i = 0;i < strlen(src_name);i++){
                     new->name[i] = src_name[i];
@@ -153,7 +153,7 @@ struct ext2_dir_entry* make_file_entry(char* src_name, int inode, int* error){
                 dir_entry->rec_len = size;
                 new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
                 new->file_type = EXT2_FT_REG_FILE;
-                new->inode = find_an_unused_inode;
+                new->inode = find_an_unused_inode();
                 new->name_len = strlen(src_name);
                 for(int i = 0;i < strlen(src_name);i++){
                     new->name[i] = src_name[i];
@@ -168,6 +168,9 @@ struct ext2_dir_entry* make_file_entry(char* src_name, int inode, int* error){
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
     }
+
+    //Should not be here;
+    return new;
 }
 
 
