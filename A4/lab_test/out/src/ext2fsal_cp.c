@@ -88,24 +88,24 @@ int32_t ext2_fsal_cp(const char *src,
         } 
         inode = find_last_inode(dst_path, &error);
         if(error != 0){
-            return 300;
+            return 102;
             return error;
         }
         int check = check_current_inode(inode, dst_name);
 
         // not found or is a link 
         if (check == 0 || check == 3){
-            return 400;
+            return 103;
             return ENOENT;
         }
         // found a dir but doesn't have a slash
         else if (check == 1){
-            return 500;
+            return 104;
             return ENOENT;
         }
         // found a file but has a slash 
         else if (check == 2 && has_slash){
-            return 600;
+            return 105;
             return ENOENT;
         }
     }
@@ -114,7 +114,7 @@ int32_t ext2_fsal_cp(const char *src,
     long long size = 0;
     char* source = get_source(src_copy, &size, &error);
     if(error != 0){
-        return 700;
+        return 106;
         return error;
     }
     
