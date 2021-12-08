@@ -438,7 +438,7 @@ void make_entry(unsigned int inode, char* dir_name, int* error){
     // no space 
     if (sb->s_free_inodes_count <= 0) {
         *error = ENOSPC;
-        return 0;
+        return;
     }
 
     int last_block = (ext2_inode.i_blocks / 2) - 1;
@@ -470,7 +470,7 @@ void make_entry(unsigned int inode, char* dir_name, int* error){
                 //no blocks 
                 if(sb->s_free_blocks_count <= 0){
                     *error = ENOSPC;
-                    return 0;
+                    return;
                 }
                 //find an unused block and add it to inode info.
                 int unused_block_num = find_an_unused_block();
@@ -487,7 +487,7 @@ void make_entry(unsigned int inode, char* dir_name, int* error){
                 struct ext2_inode* dir_inode = &inode_table[dir_entry->inode - 1];
                 dir_inode->i_block[dir_inode->i_blocks / 2] = unused_block_num;
                 dir_inode->i_blocks += 2;
-                return 0;
+                return;
 
             } else{
                 dir_entry->rec_len = size;
@@ -495,7 +495,7 @@ void make_entry(unsigned int inode, char* dir_name, int* error){
                 //Initialize a directory entry and add it to the last
                 new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
                 init_new_dir_in_old_block(new, dir_name, tmp, itself_inode);
-                return 0;
+                return;
             }
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
