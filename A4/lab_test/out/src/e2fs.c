@@ -82,6 +82,9 @@ void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int bl
                 indirect = find_an_unused_block();
                 file_inode->i_block[12] = indirect;
                 file_inode->i_blocks += 2;
+                block_num = find_an_unused_block();
+                unsigned int *indirect_block = (unsigned int *) (disk + indirect * EXT2_BLOCK_SIZE);
+                indirect_block[0] = block_num;
             }
             else{
                 block_num = find_an_unused_block();
@@ -101,6 +104,8 @@ void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int bl
                 indirect = find_an_unused_block();
                 file_inode->i_block[12] = indirect;
                 file_inode->i_blocks += 2;
+                unsigned int *indirect_block = (unsigned int *) (disk + indirect * EXT2_BLOCK_SIZE);
+                indirect_block[0] = block_num;
             }
             else if(currect_block > 12 && currect_block > file_inode->i_blocks / 2){
                 block_num = find_an_unused_block();
@@ -112,6 +117,25 @@ void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int bl
 
         }else{ // dst > src, cleanup blocks 
 
+            indirect = file_inode->i_block[12];
+
+            if(currect_block < 12 && currect_block > blocks_needed){
+                rm_block(file_inode->i_block[currect_block]);
+            }
+
+            else if(currect_block == 12 && currect_block > blocks_needed){
+                rm_block(file_inode->i_block[currect_block]);
+                file_inode->i_blocks -= 2;
+                unsigned int *indirect_block = (unsigned int *) (disk + indirect * EXT2_BLOCK_SIZE);
+                rm_block(indirect_block[0]);
+            }
+            else if(currect_block > 12 && currect_block > blocks_needed){
+                
+                unsigned int *indirect_block = (unsigned int *) (disk + indirect * EXT2_BLOCK_SIZE);
+                rm_block(indirect_block[currect_block - 12]);
+            }
+            file_inode->i_blocks -= 2;
+            currect_block++;
         }
         // finally... memcpy time 
         char *block = (char*) (disk + block_num * EXT2_BLOCK_SIZE);
