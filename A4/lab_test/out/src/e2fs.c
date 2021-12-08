@@ -147,7 +147,7 @@ struct ext2_dir_entry* make_file_entry(char* src_name, int inode, int* error){
                 struct ext2_inode *itself_inode = &inode_table[itself - 1];
                 itself_inode->i_block[itself_inode->i_blocks/2] = unused_block_num;
                 itself_inode->i_blocks += 2;
-                return;
+                return new;
 
             } else{
                 dir_entry->rec_len = size;
@@ -163,7 +163,7 @@ struct ext2_dir_entry* make_file_entry(char* src_name, int inode, int* error){
 
                 struct ext2_inode *inode = &inode_table[new->inode - 1];
                 init_an_inode_for_file(inode);
-                return;
+                return new;
             }
         }
         dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
