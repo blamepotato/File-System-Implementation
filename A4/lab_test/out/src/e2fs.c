@@ -147,6 +147,7 @@ char* get_source(char* src_copy, long long* size, int* error){
 void update_block_bitmap_in_rm(struct ext2_inode* inode_dir){
     for (int i = 0; i < inode_dir->i_blocks / 2; i++){
         int block_num = inode_dir->i_block[i];
+        printf("block_num: %d", block_num);
         int count = 1;
         int found = 0;
         for (int byte=0; byte<(128/8); byte++){
