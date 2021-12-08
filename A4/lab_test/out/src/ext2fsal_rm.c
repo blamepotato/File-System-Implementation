@@ -157,6 +157,12 @@ int32_t ext2_fsal_rm(const char *path)
     for (int i = 0; i < inode_dir->i_blocks / 2; i++){
         printf("Block: %d\n", inode_dir->i_block[i]);
     }
-    
+
+    update_block_bitmap_in_rm(inode_dir);
+
+    inode_dir->i_dtime = time(NULL);
+
+    sb->s_free_inodes_count++;
+    gd->bg_free_inodes_count++;
     return 0;
 }
