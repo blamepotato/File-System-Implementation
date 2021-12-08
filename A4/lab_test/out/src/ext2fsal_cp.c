@@ -65,7 +65,8 @@ int32_t ext2_fsal_cp(const char *src,
     // target the a dir 
     if(has_slash){
         mode = 1;
-        trimmed_dst[strlen(trimmed_dst) - 1] = '/';
+        trimmed_dst[strlen(trimmed_dst)] = '/';
+        trimmed_dst[strlen(trimmed_dst)] = '\0';
         inode = find_last_inode(trimmed_dst, &error);
         if(strlen(src_name) > EXT2_NAME_LEN){
             return ENAMETOOLONG;
