@@ -170,7 +170,7 @@ struct ext2_dir_entry* make_file_entry(char* src_name, int inode, int* error){
     }
 
     //Should not be here;
-    return new;
+    return 0;
 }
 
 
