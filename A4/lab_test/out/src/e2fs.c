@@ -35,35 +35,76 @@ extern pthread_mutex_t inode_table_lock;
 extern pthread_mutex_t block_bitmap_lock;
 extern pthread_mutex_t inode_bitmap_lock;
 
-// void cp_to_blocks(char* source, char* src_name, int inode, int blocks_needed, long long size, int mode){
-//     // overwritting existing file, no need to find new inode
-//     struct ext2_inode* inode_ptr = &inode_table[inode];
-//     int currect_block = 0;
+void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int blocks_needed, long long size, int mode){
+    // overwritting existing file, no need to find new inode
+    struct ext2_inode* inode_ptr = &inode_table[inode];
+    int currect_block = 0;
     
-//     if(mode == 2){
-//         // if dst file is smaller than src, 
-//         inode_pr
-//         if(inode_ptr->i_blocks / 2 < blocks_needed){
+    if(mode == 2){
+        struct ext2_dir_entry** dst_and_last = find_dst_and_last_entry(inode_ptr, dst_name);
+        struct ext2_dir_entry* dst_entry = dst_and_last[0];
+        struct ext2_dir_entry* last_entry = dst_and_last[1];
 
-//         }
+        int prev_rec_len = (int) dst_entry->rec_len;
+        dst_entry->name_len = strlen(src_name);
+        int size = 8 + (int) dst_entry->name_len;
+        //make it be multiple of 4
+        size += (4 - size % 4);
+        dst_entry->rec_len = size;
+        // negative if src len > dst len, positive if src len < dst len
+        int diff = prev_rec_len - size;
+        last_entry->rec_len += diff;
+        // if dst file is smaller than src, 
 
-//         while(currect_block < blocks_needed){
-//             // doesn't need indirect block
-//             if(currect_block < 13){
+        if(inode_ptr->i_blocks / 2 < blocks_needed){
+
+        }
+        else{
+
+        }
+        while(currect_block < blocks_needed){
+            // doesn't need indirect block
+            if(currect_block < 13){
                 
-//             }
-//         }
+            }
+        }
 
-//     }
-//     else if(mode == 1){
+    }
+    else if(mode == 1){
 
-//     }
+    }
 
-// }
+}
 
-// struct **ext2_dir_entry find_current_and_last_entry(){
+struct ext2_dir_entry** find_dst_and_last_entry(struct ext2_inode* inode, char* dst_name){
+    struct ext2_dir_entry** curr_and_last;
+    int block_num;
+    struct ext2_dir_entry *dir_entry;
 
-// }
+    for(int i = 0; i < inode->i_blocks / 2; i++){
+        block_num = inode->i_block[i];
+        dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
+        int used_size = 0;
+        while (used_size < EXT2_BLOCK_SIZE){
+
+            char name[dir_entry->name_len + 1];
+            name[dir_entry->name_len] = '\0';
+            for(int i = 0;i < dir_entry->name_len;i++){
+                name[i] = dir_entry->name[i];
+            }
+
+            if (strcmp(name, dst_name) == 0){
+                curr_and_last[0] = dir_entry;
+            }
+
+            used_size += dir_entry->rec_len;
+            dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+        }
+    }
+    curr_and_last[1] = dir_entry;
+    
+    return curr_and_last;
+}
 
 
 char* get_source(char* src_copy, long long* size, int* error){

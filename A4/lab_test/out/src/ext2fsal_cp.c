@@ -54,6 +54,7 @@ int32_t ext2_fsal_cp(const char *src,
 
     unsigned int inode;
     int mode; // 1 if create new dir entry, 2 if overwrite dir entry
+    char* dst_name;
     // target the a dir 
     if(has_slash){
         mode = 1;
@@ -71,10 +72,9 @@ int32_t ext2_fsal_cp(const char *src,
 
     }else{
         mode = 2;
-        unsigned int new_inode = -1; 
         char** path_and_name = get_path_and_name(trimmed_dst);
         char* dst_path = path_and_name[0];
-        char* dst_name = path_and_name[1];
+        dst_name = path_and_name[1];
         if(strlen(dst_name) > EXT2_NAME_LEN){
             return ENAMETOOLONG;
         } 
@@ -111,7 +111,7 @@ int32_t ext2_fsal_cp(const char *src,
         return ENOSPC;
     }
 
-    cp_to_blocks(source, src_name, inode, blocks_needed, size, mode);
+    cp_to_blocks(source, src_name, dst_name, inode, blocks_needed, size, mode);
 
 
     
