@@ -100,7 +100,7 @@ int32_t ext2_fsal_cp(const char *src,
     
     // get ptr and size of src file
     long long size = 0;
-    char* source = get_source(src_copy, &error, &size);
+    char* source = get_source(src_copy, &size, &error);
     if(error != 0){
         return error;
     }
@@ -111,7 +111,7 @@ int32_t ext2_fsal_cp(const char *src,
         return ENOSPC;
     }
 
-    cp_write(source, src_name, inode, blocks_needed, size, mode);
+    cp_to_blocks(source, src_name, inode, blocks_needed, size, mode);
 
 
     
