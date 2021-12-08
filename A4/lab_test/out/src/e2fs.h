@@ -40,6 +40,6 @@ extern void update_inode_blocks(struct ext2_inode *inode, int unused_block_num);
 extern int check_current_inode(unsigned int inode, char* current_name);
 extern void update_block_bitmap_in_rm(struct ext2_inode* inode_dir);
 extern void make_entry(unsigned int inode, char* dir_name, int* error);
-update_new_block_list(unsigned int* new_block_list, int num);
+extern void update_new_block_list(unsigned int* new_block_list, int num);
 
 #endif
