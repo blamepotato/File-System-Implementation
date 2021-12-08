@@ -195,8 +195,6 @@ void update_new_block_list(unsigned int* new_block_list, int num){
                 count++;
             }
         }
-        sb->s_free_blocks_count++;
-        gd->bg_free_blocks_count++;
     }
 }
 
