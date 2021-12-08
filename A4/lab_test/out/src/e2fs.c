@@ -47,14 +47,14 @@ void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int bl
     struct ext2_inode* file_inode;
 
     if(mode == 1){ // create new dir
-        struct ext2_dir_entry* file_entry = make_file_entry(src_name, inode);
-        struct ext2_inode* file_inode = &inode_table[file_entry->inode];
+        file_entry = make_file_entry(src_name, inode);
+        file_inode = &inode_table[file_entry->inode];
     }    
     else{ // overwrite file
         overwrite = 1;
         struct ext2_dir_entry** dst_and_last = find_dst_and_last_entry(inode_ptr, dst_name);
         file_entry = dst_and_last[0];
-        struct ext2_inode* file_inode = &inode_table[file_entry->inode];
+        file_inode = &inode_table[file_entry->inode];
         struct ext2_dir_entry* last_entry = dst_and_last[1];
 
         int prev_rec_len = (int) file_entry->rec_len;
@@ -68,7 +68,7 @@ void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int bl
         last_entry->rec_len += diff;
         file_inode->i_size = size;
         // if dst file is smaller than src, 
-        int src_bigger = blocks_needed - file_inode->i_blocks / 2 > 0 ? 1 : 0;
+        src_bigger = blocks_needed - file_inode->i_blocks / 2 > 0 ? 1 : 0;
     }
     
     for(;currect_block < blocks_needed; currect_block++){

@@ -119,7 +119,5 @@ int32_t ext2_fsal_cp(const char *src,
 
     cp_to_blocks(source, src_name, dst_name, inode, blocks_needed, size, mode);
 
-
-    
     return 0;
 }
