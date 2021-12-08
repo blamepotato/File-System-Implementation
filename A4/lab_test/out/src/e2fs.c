@@ -107,6 +107,91 @@ struct ext2_dir_entry** find_dst_and_last_entry(struct ext2_inode* inode, char* 
     return curr_and_last;
 }
 
+struct ext2_dir_entry* make_file_entry(char* src_name, int inode, int* error){
+    struct ext2_inode ext2_inode = inode_table[inode];
+    int last_block = (ext2_inode.i_blocks / 2) - 1;
+    int block_num = ext2_inode.i_block[last_block];
+    struct ext2_dir_entry *dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
+    int used_size = 0;
+
+    int itself = dir_entry->inode;
+    struct ext2_dir_entry *new;
+    //https://piazza.com/class/ks5i8qv0pqn139?cid=736
+    while (used_size < EXT2_BLOCK_SIZE){
+        used_size += dir_entry->rec_len;
+        if (used_size == EXT2_BLOCK_SIZE){
+
+            //dir_entry is the last one at this time.
+            int size = 8 + (int) dir_entry->name_len;
+            //make it be multiple of 4
+            size += (4 - size % 4);
+
+            //Left size.
+            int tmp = dir_entry->rec_len - size;
+            if (tmp < 8 + strlen(src_name)){
+                //full
+                int unused_block_num = find_an_unused_block();
+                new = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
+                new->file_type = EXT2_FT_REG_FILE;
+                new->inode = find_an_unused_inode;
+                new->name_len = strlen(src_name);
+                for(int i = 0;i < strlen(src_name);i++){
+                    new->name[i] = src_name[i];
+                }
+                new->name[strlen(src_name)] = '\0';
+                new->rec_len = 1024;
+
+                struct ext2_inode *inode = &inode_table[new->inode - 1];
+                init_an_inode_for_file(inode);
+
+                struct ext2_inode *itself_inode = &inode_table[itself - 1];
+                itself_inode->i_block[itself_inode->i_blocks/2] = unused_block_num;
+                itself_inode->i_blocks += 2;
+                return;
+
+            } else{
+                dir_entry->rec_len = size;
+                new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
+                new->file_type = EXT2_FT_REG_FILE;
+                new->inode = find_an_unused_inode;
+                new->name_len = strlen(src_name);
+                for(int i = 0;i < strlen(src_name);i++){
+                    new->name[i] = src_name[i];
+                }
+                new->name[strlen(src_name)] = '\0';
+                new->rec_len = tmp;
+
+                struct ext2_inode *inode = &inode_table[new->inode - 1];
+                init_an_inode_for_file(inode);
+                return;
+            }
+        }
+        dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
+    }
+}
+
+
+void init_an_inode_for_file(struct ext2_inode *inode){
+    inode->i_mode = EXT2_S_IFREG;
+    inode->i_uid = 0;
+    //might have problem here
+    inode->i_size = 0;
+    inode->i_dtime = 0;
+    inode->i_gid = 0;
+    inode->i_links_count = 1;
+    inode->osd1 = 0;
+    inode->i_generation = 0;
+    inode->i_file_acl = 0;
+    inode->i_dir_acl = 0;
+    inode->i_faddr = 0;
+    inode->extra[0] = 0;
+    inode->extra[1] = 0;
+    inode->extra[2] = 0;
+
+    //Dont have any blocks in i_block;
+    inode->i_blocks = 0;
+}
+
 
 char* get_source(char* src_copy, long long* size, int* error){
     // saves the content of a file into a pointer 
@@ -148,8 +233,7 @@ char* get_source(char* src_copy, long long* size, int* error){
 void update_block_bitmap_in_rm(struct ext2_inode* inode_dir){
     for (int i = 0; i < inode_dir->i_blocks / 2; i++){
         int block_num = inode_dir->i_block[i];
-    
-        printf("block_num: %d", block_num);
+
         int count = 1;
         int found = 0;
         for (int byte=0; byte<(128/8); byte++){
@@ -158,7 +242,6 @@ void update_block_bitmap_in_rm(struct ext2_inode* inode_dir){
             }
             for (int bit=0; bit<8; bit++){
                 if (count == block_num){
-                    printf("Count: %d\n", count);
                     block_bitmap[byte] &= ~(1<<bit);
                     found = 1;
                     break;
@@ -190,7 +273,6 @@ void update_new_block_list(unsigned int* new_block_list, int num){
             }
             for (int bit=0; bit<8; bit++){
                 if (count == block_num){
-                    printf("Count: %d\n", count);
                     block_bitmap[byte] &= ~(1<<bit);
                     found = 1;
                     break;
@@ -463,16 +545,8 @@ void init_new_dir_in_new_block(struct ext2_dir_entry *dir_entry, char* dir_name,
     new_dir_entry = (struct ext2_dir_entry *) (((char*) new_dir_entry)+ new_dir_entry->rec_len);
     init_second_dir(new_dir_entry, parent_inode);
 
-    //update_inode_blocks(&ext2_inode, unused_block_num);
-
     struct ext2_inode* ext2_inode = &inode_table[dir_entry->inode - 1];
-    //ext2_inode.i_blocks = 2;
-    //ext2_inode.i_block[0] = unused_block_num;
     update_inode_blocks(ext2_inode, unused_block_num);
-    // sb->s_free_blocks_count--;
-    // gd->bg_free_blocks_count--;
-    // sb->s_free_inodes_count--;
-    // gd->bg_free_inodes_count--;
     gd->bg_used_dirs_count++;
 }
 
@@ -513,7 +587,7 @@ void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
     inode->i_mode = EXT2_S_IFDIR;
     inode->i_uid = 0;
     inode->i_size = EXT2_BLOCK_SIZE;
-    inode->i_dtime = 0;;
+    inode->i_dtime = 0;
     inode->i_gid = 0;
     inode->i_links_count = 2;
     inode->osd1 = 0;
@@ -580,7 +654,7 @@ void make_entry(unsigned int inode, char* dir_name, int* error){
 
                 //update inode info.
                 //update_inode_blocks(&ext2_inode, unused_block_num);
-                struct ext2_inode* dir_inode = &inode_table[dir_entry->inode - 1];
+                struct ext2_inode* dir_inode = &inode_table[itself_inode - 1];
                 dir_inode->i_block[dir_inode->i_blocks / 2] = unused_block_num;
                 dir_inode->i_blocks += 2;
                 return;
