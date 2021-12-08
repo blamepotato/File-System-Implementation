@@ -508,12 +508,12 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
                 name[i] = dir_entry->name[i];
             }
 
-            if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
+            if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR && dir_entry->inode != 0){
                 //The file is not a directory file.
                 *error = ENOENT;
                 return 0;
 
-            } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
+            } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR && dir_entry->inode != 0){
                 return dir_entry;
             }
             used_size += dir_entry->rec_len;
