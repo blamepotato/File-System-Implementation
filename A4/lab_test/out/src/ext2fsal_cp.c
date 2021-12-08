@@ -47,7 +47,7 @@ int32_t ext2_fsal_cp(const char *src,
     dst_copy[strlen(dst)] = '\0';
     char* trimmed_dst = escape_path(dst_copy, &error, &has_slash);
     if(error != 0){
-        printf("1111111111");
+        return 100;
         return error;
     }
     // processing src
@@ -71,7 +71,7 @@ int32_t ext2_fsal_cp(const char *src,
             return ENAMETOOLONG;
         } 
         if(error != 0){
-            printf("22222222");
+            return 200;
             return error;
         }
         if (sb->s_free_inodes_count <= 0) {
@@ -88,24 +88,24 @@ int32_t ext2_fsal_cp(const char *src,
         } 
         inode = find_last_inode(dst_path, &error);
         if(error != 0){
-            printf("33333333");
+            return 300;
             return error;
         }
         int check = check_current_inode(inode, dst_name);
 
         // not found or is a link 
         if (check == 0 || check == 3){
-            printf("4444444");
+            return 400;
             return ENOENT;
         }
         // found a dir but doesn't have a slash
         else if (check == 1){
-            printf("555555");
+            return 500;
             return ENOENT;
         }
         // found a file but has a slash 
         else if (check == 2 && has_slash){
-            printf("6666666");
+            return 600;
             return ENOENT;
         }
     }
@@ -114,7 +114,7 @@ int32_t ext2_fsal_cp(const char *src,
     long long size = 0;
     char* source = get_source(src_copy, &size, &error);
     if(error != 0){
-        printf("7777777");
+        return 700;
         return error;
     }
     
