@@ -148,6 +148,7 @@ char* get_source(char* src_copy, long long* size, int* error){
 void update_block_bitmap_in_rm(struct ext2_inode* inode_dir){
     for (int i = 0; i < inode_dir->i_blocks / 2; i++){
         int block_num = inode_dir->i_block[i];
+    
         printf("block_num: %d", block_num);
         int count = 1;
         int found = 0;
@@ -169,7 +170,7 @@ void update_block_bitmap_in_rm(struct ext2_inode* inode_dir){
         gd->bg_free_blocks_count++;
 
         if (i == 12){
-            int num = inode_dir->i_blocks / 2 - 12;
+            int num = inode_dir->i_blocks / 2 - 13;
             unsigned int* new_block_list = (unsigned int *) (disk + 1024 * block_num);
             update_new_block_list(new_block_list, num);
             break;
