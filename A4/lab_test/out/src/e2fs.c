@@ -463,7 +463,7 @@ unsigned int find_last_inode(char *dir_path, int* error){
 			inode_entry = (struct ext2_inode*)(&inode_table[inode_index]);
         }
         else{
-            *error = ENOENT;
+            *error = 123;
             return 0; 
         }
         get_curr_dir_name(&current_path, &current_name);
@@ -510,7 +510,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 
             if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
                 //The file is not a directory file.
-                *error = 866;
+                *error = ENOENT;
                 return 0;
 
             } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
@@ -521,7 +521,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
         }
     }
     //The current_name is not exist.
-    *error = ENOENT;
+    *error = 877;
     return 0;
 }
 
