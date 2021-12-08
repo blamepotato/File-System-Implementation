@@ -61,7 +61,6 @@ void ext2_fsal_init(const char* image)
 
     pthread_mutex_init(&sb_lock, NULL);
     pthread_mutex_init(&gd_lock, NULL);
-    pthread_mutex_init(&inode_table_lock, NULL);
     pthread_mutex_init(&block_bitmap_lock, NULL);
     pthread_mutex_init(&inode_bitmap_lock, NULL);
     for(int i = 0; i < 32; i++){
