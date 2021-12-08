@@ -510,7 +510,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 
             if (strcmp(name, current_name) == 0 && dir_entry->file_type != EXT2_FT_DIR){
                 //The file is not a directory file.
-                *error = ENOENT;
+                *error = 321;
                 return 0;
 
             } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
@@ -521,7 +521,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
         }
     }
     //The current_name is not exist.
-    *error = 877;
+    *error = 411;
     return 0;
 }
 

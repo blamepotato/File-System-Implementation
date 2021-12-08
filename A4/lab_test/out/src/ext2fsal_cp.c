@@ -71,7 +71,6 @@ int32_t ext2_fsal_cp(const char *src,
             return ENAMETOOLONG;
         } 
         if(error != 0){
-            return 200;
             return error;
         }
         if (sb->s_free_inodes_count <= 0) {
