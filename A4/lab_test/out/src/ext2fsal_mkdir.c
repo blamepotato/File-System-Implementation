@@ -67,10 +67,10 @@ int32_t ext2_fsal_mkdir(const char *path)
     if(error != 0){
         return error;
     }
-    unsigned int new_inode = -1; 
+
 
     // 3. mkdir
-    int check = check_current_inode(inode, dir_name, &new_inode);
+    int check = check_current_inode(inode, dir_name);
     if (check == 1){
         return EEXIST;
     }
@@ -79,6 +79,7 @@ int32_t ext2_fsal_mkdir(const char *path)
     }
     
     make_entry(inode, dir_name, &error);
+    
     if(error != 0){
         return error;
     }

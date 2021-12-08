@@ -35,16 +35,36 @@ extern pthread_mutex_t inode_table_lock;
 extern pthread_mutex_t block_bitmap_lock;
 extern pthread_mutex_t inode_bitmap_lock;
 
-void cp_to_blocks(char* source, char* src_name, int inode, int blocks_needed, long long size, int mode){
+// void cp_to_blocks(char* source, char* src_name, int inode, int blocks_needed, long long size, int mode){
+//     // overwritting existing file, no need to find new inode
+//     struct ext2_inode* inode_ptr = &inode_table[inode];
+//     int currect_block = 0;
+    
+//     if(mode == 2){
+//         // if dst file is smaller than src, 
+//         inode_pr
+//         if(inode_ptr->i_blocks / 2 < blocks_needed){
 
+//         }
 
+//         while(currect_block < blocks_needed){
+//             // doesn't need indirect block
+//             if(currect_block < 13){
+                
+//             }
+//         }
 
+//     }
+//     else if(mode == 1){
 
+//     }
 
+// }
 
+// struct **ext2_dir_entry find_current_and_last_entry(){
 
+// }
 
-}
 
 char* get_source(char* src_copy, long long* size, int* error){
     // saves the content of a file into a pointer 
@@ -248,7 +268,7 @@ struct ext2_dir_entry* get_dir_entry(struct ext2_inode* inode, char * current_na
 }
 
 
-int check_current_inode(unsigned int inode, char* current_name, unsigned int* new_inode){
+int check_current_inode(unsigned int inode, char* current_name){
     // 1 = dir 2 = file 0 = not found 3 link
     struct ext2_inode ext2_inode = inode_table[inode];
     int block_num;
@@ -266,15 +286,14 @@ int check_current_inode(unsigned int inode, char* current_name, unsigned int* ne
             }
 
             if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_REG_FILE){
-                *new_inode = dir_entry->inode;
                 return 2;
             } else if (strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_DIR){
-                *new_inode = dir_entry->inode;
+               
                 return 1;
             }
 
             else if(strcmp(name, current_name) == 0 && dir_entry->file_type == EXT2_FT_SYMLINK){
-                *new_inode = dir_entry->inode;
+
                 return 3;
             }
             used_size += dir_entry->rec_len;

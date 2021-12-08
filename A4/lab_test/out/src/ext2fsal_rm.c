@@ -61,8 +61,7 @@ int32_t ext2_fsal_rm(const char *path)
     if(error != 0){
         return error;
     }
-    unsigned int new_inode = -1; 
-    int check = check_current_inode(inode, dir_name, &new_inode);
+    int check = check_current_inode(inode, dir_name);
     // not found
     if (check == 0){
         return ENOENT;
