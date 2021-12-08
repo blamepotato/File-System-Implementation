@@ -273,14 +273,14 @@ char* get_source(char* src_copy, long long* size, int* error){
 	FILE *fp = fopen(src_copy, "r");
     // fail is file doesn't exist or is dir
 	if (fp == NULL) {
-        *error = ENOENT;
+        *error = 1;
 		return 0;
 	}
     // is src is a dir 
     struct stat statbuf;
     stat(src_copy, &statbuf);
     if (S_ISDIR(statbuf.st_mode)){
-        *error = EISDIR;
+        *error = 2;
         return 0;
     }
 
@@ -290,7 +290,7 @@ char* get_source(char* src_copy, long long* size, int* error){
 	*size = (long long)ftell(fp);
 
     if(size == 0){
-        *error = ENOENT;
+        *error = 3;
         return 0;
     }
 
@@ -298,7 +298,7 @@ char* get_source(char* src_copy, long long* size, int* error){
 
 	char* ptr = calloc(1, *size + 1);
 	if (fread(ptr, *size, 1, fp) != 1) {
-        *error = ENOENT;
+        *error = 4;
 		return 0;
 	}
 	fclose(fp);

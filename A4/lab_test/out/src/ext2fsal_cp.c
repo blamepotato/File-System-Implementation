@@ -114,7 +114,7 @@ int32_t ext2_fsal_cp(const char *src,
     long long size = 0;
     char* source = get_source(src_copy, &size, &error);
     if(error != 0){
-        return 106;
+    
         return error;
     }
     
