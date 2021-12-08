@@ -78,71 +78,10 @@ int32_t ext2_fsal_mkdir(const char *path)
         return ENOENT;
     }
     
-    struct ext2_inode ext2_inode = inode_table[inode];
-    // no space 
-    if (sb->s_free_inodes_count <= 0) {
-        return ENOSPC;
+    make_entry(inode, dir_name, &error);
+    if(error != 0){
+        return error;
     }
-
-    int last_block = (ext2_inode.i_blocks / 2) - 1;
-    int block_num = ext2_inode.i_block[last_block];
-    struct ext2_dir_entry *dir_entry = (struct ext2_dir_entry *) (disk + 1024 * block_num);
-    int used_size = 0;
-    //.'s inode
-    int itself_inode = dir_entry->inode;
-    //..'s inode
-    //int parent_inode = ((struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len))->inode;
-
-    struct ext2_dir_entry *new;
-    //https://piazza.com/class/ks5i8qv0pqn139?cid=736
-    while (used_size < EXT2_BLOCK_SIZE){
-        used_size += dir_entry->rec_len;
-        if (used_size == EXT2_BLOCK_SIZE){
-
-            //dir_entry is the last one at this time.
-            int size = 8 + (int) dir_entry->name_len;
-            //make it be multiple of 4
-            size += (4 - size % 4);
-
-            //Left size.
-            int tmp = dir_entry->rec_len - size;
-            if (tmp < 8 + strlen(dir_name)){
-                //Initialize . , .. and its directory block.
-                //update block_bitmap and inode_bitmap
-
-                //no blocks 
-                if(sb->s_free_blocks_count <= 0){
-                    return ENOSPC;
-                }
-                //find an unused block and add it to inode info.
-                int unused_block_num = find_an_unused_block();
-
-                struct ext2_dir_entry* new_dir_entry_in_new_block = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
-
-                //No need to initialize . and .. in the new block
-
-                //Initialize added directory.
-                init_new_dir_in_new_block(new_dir_entry_in_new_block, dir_name, itself_inode);
-
-                //update inode info.
-                //update_inode_blocks(&ext2_inode, unused_block_num);
-                struct ext2_inode* dir_inode = &inode_table[dir_entry->inode - 1];
-                dir_inode->i_block[dir_inode->i_blocks / 2] = unused_block_num;
-                dir_inode->i_blocks += 2;
-                return 0;
-
-            } else{
-                dir_entry->rec_len = size;
-                //still have available space.
-                //Initialize a directory entry and add it to the last
-                new = (struct ext2_dir_entry *) (((char*) dir_entry) + size);
-                init_new_dir_in_old_block(new, dir_name, tmp, itself_inode);
-                return 0;
-            }
-        }
-        dir_entry = (struct ext2_dir_entry *) (((char*) dir_entry)+ dir_entry->rec_len);
-    }
-
     return 0;
 }
 

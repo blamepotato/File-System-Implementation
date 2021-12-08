@@ -37,6 +37,7 @@ extern void init_new_dir_in_new_block(struct ext2_dir_entry * dir_entry, char* d
 extern void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name, unsigned short rec_len, int parent_inode);
 extern void update_inode_blocks(struct ext2_inode *inode, int unused_block_num);
 extern int check_current_inode(unsigned int inode, char* current_name, unsigned int* new_inode);
-void update_block_bitmap_in_rm(struct ext2_inode* inode_dir);
+extern void update_block_bitmap_in_rm(struct ext2_inode* inode_dir);
+extern void make_entry(unsigned int inode, char* dir_name, int* error);
 
 #endif
