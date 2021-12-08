@@ -110,6 +110,7 @@ int32_t ext2_fsal_cp(const char *src,
     if(error != 0){
         return error;
     }
+    printf("%s", source);
     int blocks_needed = floor(size / EXT2_BLOCK_SIZE);
 
     // Check if there is enough blocks for Data
