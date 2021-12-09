@@ -84,7 +84,7 @@ int32_t ext2_fsal_rm(const char *path)
     //update: sb gd imap bmap inodetable
     pthread_mutex_lock(&inode_locks[inode]);
     struct ext2_inode ext2_inode = inode_table[inode];
-
+    pthread_mutex_unlock(&inode_locks[inode]);
     int block_num;
     struct ext2_dir_entry *dir_entry;
 
@@ -163,6 +163,5 @@ int32_t ext2_fsal_rm(const char *path)
     pthread_mutex_unlock(&gd_lock);
     pthread_mutex_unlock(&sb_lock);
 
-    pthread_mutex_unlock(&inode_locks[inode]);
     return 0;
 }
