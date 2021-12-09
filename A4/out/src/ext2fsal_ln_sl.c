@@ -1,0 +1,73 @@
+/*
+ *------------
+ * This code is provided solely for the personal and private use of
+ * students taking the CSC369H5 course at the University of Toronto.
+ * Copying for purposes other than this use is expressly prohibited.
+ * All forms of distribution of this code, whether as given or with
+ * any changes, are expressly prohibited.
+ *
+ * All of the files in this directory and all subdirectories are:
+ * Copyright (c) 2019 MCS @ UTM
+ * -------------
+ */
+
+#include "ext2fsal.h"
+#include "e2fs.h"
+
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+
+int32_t ext2_fsal_ln_sl(const char *src,
+                        const char *dst)
+{
+    /**
+     * TODO: implement the ext2_ln_sl command here ...
+     * src and dst are the ln command arguments described in the handout.
+     */
+
+     /* This is just to avoid compilation warnings, remove these 3 lines when you're done. */
+    int error = 0;
+    int dst_has_slash = 0;
+    
+    char dst_copy[strlen(dst) + 1];
+    strcpy(dst_copy, dst);
+    dst_copy[strlen(dst_copy)] = '\0';
+
+    
+    char* dst_trimmed_path = escape_path(dst_copy, &error, &dst_has_slash);
+    if(error != 0){
+        return error;
+    }
+
+    if (strlen(dst_trimmed_path) == 1){
+        return EISDIR;
+    }
+
+
+    char** dst_path_and_name = get_path_and_name(dst_trimmed_path);
+    char* dst_dir_path = dst_path_and_name[0];
+    char* dst_dir_name = dst_path_and_name[1];
+
+
+    if(strlen(dst_dir_name) > EXT2_NAME_LEN){
+        return ENAMETOOLONG;
+    }
+
+    
+    // dst path
+    unsigned int dst_inode = find_last_inode(dst_dir_path, &error);
+    if(error != 0){
+        return error;
+    }
+
+    int dst_check = check_current_inode(dst_inode, dst_dir_name);
+    if(dst_check == 1){
+        return EISDIR;
+    }
+
+    return 0;
+}
