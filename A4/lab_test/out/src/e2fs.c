@@ -268,7 +268,7 @@ void init_an_inode_for_file(struct ext2_inode *inode){
 }
 
 
-char* get_source(char* src_copy, long long* size, int* error){
+char* get_source(const char* src_copy, long long* size, int* error){
     // saves the content of a file into a pointer 
 	FILE *fp = fopen(src_copy, "r");
     // fail is file doesn't exist or is dir
