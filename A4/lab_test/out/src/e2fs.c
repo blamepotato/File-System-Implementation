@@ -324,12 +324,9 @@ void update_block_bitmap_in_rm(struct ext2_inode* inode_dir){
                 count++;
             }
         }
-        pthread_mutex_lock(&sb_lock);
-        pthread_mutex_lock(&gd_lock);
+
         sb->s_free_blocks_count++;
         gd->bg_free_blocks_count++;
-        pthread_mutex_unlock(&gd_lock);
-        pthread_mutex_unlock(&sb_lock);
 
         if (i == 12){
             int num = inode_dir->i_blocks / 2 - 13;
@@ -359,12 +356,10 @@ void update_new_block_list(unsigned int* new_block_list, int num){
                 count++;
             }
         }
-        pthread_mutex_lock(&sb_lock);
-        pthread_mutex_lock(&gd_lock);
+
         sb->s_free_blocks_count++;
         gd->bg_free_blocks_count++;
-        pthread_mutex_unlock(&gd_lock);
-        pthread_mutex_unlock(&sb_lock);
+
     }
 }
 
