@@ -273,13 +273,12 @@ void init_an_inode_for_file(struct ext2_inode *inode){
 char* get_source(const char* src_copy, long long* size, int* error){
     char cwd[PATH_MAX];
     getcwd(cwd, sizeof(cwd));
+    cwd[strlen(cwd)] = '\0';
     if(src_copy[0] != '/'){
         cwd[strlen(cwd)] = '/';
         cwd[strlen(cwd)+1] = '\0';
     }
-    
     strcat(cwd, src_copy);
-    printf("%s", cwd);
     // saves the content of a file into a pointer 
 	FILE *fp = fopen(cwd, "r");
     // fail is file doesn't exist or is dir
