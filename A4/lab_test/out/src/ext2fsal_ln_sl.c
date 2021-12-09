@@ -30,8 +30,44 @@ int32_t ext2_fsal_ln_sl(const char *src,
      */
 
      /* This is just to avoid compilation warnings, remove these 3 lines when you're done. */
-    (void)src;
-    (void)dst;
+    int error = 0;
+    int dst_has_slash = 0;
+    
+    char dst_copy[strlen(dst) + 1];
+    strcpy(dst_copy, dst);
+    dst_copy[strlen(dst_copy)] = '\0';
+
+    
+    char* dst_trimmed_path = escape_path(dst_copy, &error, &dst_has_slash);
+    if(error != 0){
+        return error;
+    }
+
+    if (strlen(dst_trimmed_path) == 1){
+        return EISDIR;
+    }
+
+
+    char** dst_path_and_name = get_path_and_name(dst_trimmed_path);
+    char* dst_dir_path = dst_path_and_name[0];
+    char* dst_dir_name = dst_path_and_name[1];
+
+
+    if(strlen(dst_dir_name) > EXT2_NAME_LEN){
+        return ENAMETOOLONG;
+    }
+
+    
+    // dst path
+    unsigned int dst_inode = find_last_inode(dst_dir_path, &error);
+    if(error != 0){
+        return error;
+    }
+
+    int dst_check = check_current_inode(dst_inode, dst_dir_name);
+    if(dst_check == 1){
+        return EISDIR;
+    }
 
     return 0;
 }

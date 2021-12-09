@@ -52,7 +52,7 @@ int32_t ext2_fsal_ln_hl(const char *src,
         return error;
     }
 
-    if (strlen(src_trimmed_path) == 1){
+    if (strlen(src_trimmed_path) == 1 || strlen(dst_trimmed_path) == 1){
         return EISDIR;
     }
 
@@ -91,7 +91,7 @@ int32_t ext2_fsal_ln_hl(const char *src,
         return error;
     }
 
-    int dst_check = check_current_inode(inode, dst_dir_name);
+    int dst_check = check_current_inode(dst_inode, dst_dir_name);
     if(dst_check != 0){
         return EEXIST;
     }
