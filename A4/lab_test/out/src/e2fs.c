@@ -643,10 +643,10 @@ void init_new_dir_in_new_block(struct ext2_dir_entry *dir_entry, char* dir_name,
     new_dir_entry = (struct ext2_dir_entry *) (((char*) new_dir_entry)+ new_dir_entry->rec_len);
     init_second_dir(new_dir_entry, parent_inode);
 
-    pthread_mutex_lock(&inode_table[dir_entry->inode - 1]);
+    pthread_mutex_lock(&inode_locks[dir_entry->inode - 1]);
     struct ext2_inode* ext2_inode = &inode_table[dir_entry->inode - 1];
     update_inode_blocks(ext2_inode, unused_block_num);
-    pthread_mutex_unlock(&inode_table[dir_entry->inode - 1]);
+    pthread_mutex_unlock(&inode_locks[dir_entry->inode - 1]);
 
     pthread_mutex_lock(&gd_lock);
     gd->bg_used_dirs_count++;
@@ -674,10 +674,10 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     new_dir_entry = (struct ext2_dir_entry *) (((char*) new_dir_entry)+ new_dir_entry->rec_len);
     init_second_dir(new_dir_entry, parent_inode);
 
-    pthread_mutex_lock(&inode_table[dir_entry->inode - 1]);
+    pthread_mutex_lock(&inode_locks[dir_entry->inode - 1]);
     struct ext2_inode* ext2_inode = &inode_table[dir_entry->inode - 1];
     update_inode_blocks(ext2_inode, unused_block_num);
-    pthread_mutex_unlock(&inode_table[dir_entry->inode - 1]);
+    pthread_mutex_unlock(&inode_locks[dir_entry->inode - 1]);
 
     pthread_mutex_lock(&gd_lock);
     gd->bg_used_dirs_count++;
