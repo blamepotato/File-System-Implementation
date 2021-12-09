@@ -157,11 +157,7 @@ int32_t ext2_fsal_rm(const char *path)
     update_block_bitmap_in_rm(inode_dir);
     inode_dir->i_dtime = time(NULL);
     pthread_mutex_unlock(&inode_locks[that_entry->inode - 1]);
-    pthread_mutex_unlock(&gd_lock);
-    pthread_mutex_unlock(&sb_lock);
 
-    pthread_mutex_lock(&sb_lock);
-    pthread_mutex_lock(&gd_lock);
     sb->s_free_inodes_count++;
     gd->bg_free_inodes_count++;
     pthread_mutex_unlock(&gd_lock);
