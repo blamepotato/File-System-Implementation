@@ -70,7 +70,9 @@ int32_t ext2_fsal_mkdir(const char *path)
 
 
     // 3. mkdir
+    pthread_mutex_lock(&inode_locks[inode]);
     int check = check_current_inode(inode, dir_name);
+    pthread_mutex_unlock(&inode_locks[inode]);
     if (check == 1){
         return EEXIST;
     }
@@ -78,8 +80,10 @@ int32_t ext2_fsal_mkdir(const char *path)
         return ENOENT;
     }
     
+    pthread_mutex_lock(&inode_locks[inode]);
     make_entry(inode, dir_name, &error);
-    
+    pthread_mutex_unlock(&inode_locks[inode]);
+
     if(error != 0){
         return error;
     }
