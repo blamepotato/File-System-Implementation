@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
-
+#include <limits.h>
 
 extern unsigned char *disk;
 extern struct ext2_super_block *sb;
@@ -271,18 +271,22 @@ void init_an_inode_for_file(struct ext2_inode *inode){
 
 
 char* get_source(const char* src_copy, long long* size, int* error){
+    char cwd[PATH_MAX];
+    getcwd(cwd, sizeof(cwd));
+    strcat(cwd, src_copy);
+    
     // saves the content of a file into a pointer 
-	FILE *fp = fopen(src_copy, "r");
+	FILE *fp = fopen(cwd, "r");
     // fail is file doesn't exist or is dir
 	if (fp == NULL) {
-        *error = errno;
+        *error = ENOENT;
 		return 0;
 	}
     // is src is a dir 
     struct stat statbuf;
     stat(src_copy, &statbuf);
     if (S_ISDIR(statbuf.st_mode)){
-        *error = 2;
+        *error = EISDIR;
         return 0;
     }
 
@@ -292,7 +296,7 @@ char* get_source(const char* src_copy, long long* size, int* error){
 	*size = (long long)ftell(fp);
 
     if(size == 0){
-        *error = 3;
+        *error = ENOENT;
         return 0;
     }
 
@@ -300,7 +304,7 @@ char* get_source(const char* src_copy, long long* size, int* error){
 
 	char* ptr = calloc(1, *size + 1);
 	if (fread(ptr, *size, 1, fp) != 1) {
-        *error = 4;
+        *error = ENOENT;
 		return 0;
 	}
 	fclose(fp);
