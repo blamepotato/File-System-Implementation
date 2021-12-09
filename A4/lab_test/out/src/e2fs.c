@@ -273,6 +273,8 @@ void init_an_inode_for_file(struct ext2_inode *inode){
 char* get_source(const char* src_copy, long long* size, int* error){
     char cwd[PATH_MAX];
     getcwd(cwd, sizeof(cwd));
+    cwd[strlen(cwd)] = '/';
+    cwd[strlen(cwd)+1] = '\0';
     strcat(cwd, src_copy);
     
     // saves the content of a file into a pointer 
