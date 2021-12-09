@@ -279,7 +279,7 @@ char* get_source(const char* src_copy, long long* size, int* error){
     }
     
     strcat(cwd, src_copy);
-    printf(cwd);
+    printf("%s", cwd);
     // saves the content of a file into a pointer 
 	FILE *fp = fopen(cwd, "r");
     // fail is file doesn't exist or is dir
