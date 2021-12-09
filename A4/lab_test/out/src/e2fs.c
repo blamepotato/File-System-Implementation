@@ -455,7 +455,9 @@ unsigned int find_last_inode(char *dir_path, int* error){
 
     while(current_path){
         if(inode_entry->i_mode & EXT2_S_IFDIR){
+            pthread_mutex_lock(&inode_locks[inode_index]);
             struct ext2_dir_entry* dir_entry = get_dir_entry(inode_entry, current_name, error);
+            pthread_mutex_unlock(&inode_locks[inode_index]);
             if (*error != 0){
                 return 0;
             }
@@ -630,10 +632,7 @@ void init_new_dir_in_new_block(struct ext2_dir_entry *dir_entry, char* dir_name,
     }
     dir_entry->name[strlen(dir_name)] = '\0';
 
-
     //find an unused block and init.
-    //struct ext2_inode ext2_inode = inode_table[dir_entry->inode];
-    
     int unused_block_num = find_an_unused_block();
     //Initialize .
     struct ext2_dir_entry * new_dir_entry = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
@@ -644,9 +643,14 @@ void init_new_dir_in_new_block(struct ext2_dir_entry *dir_entry, char* dir_name,
     new_dir_entry = (struct ext2_dir_entry *) (((char*) new_dir_entry)+ new_dir_entry->rec_len);
     init_second_dir(new_dir_entry, parent_inode);
 
+    pthread_mutex_lock(&inode_table[dir_entry->inode - 1]);
     struct ext2_inode* ext2_inode = &inode_table[dir_entry->inode - 1];
     update_inode_blocks(ext2_inode, unused_block_num);
+    pthread_mutex_unlock(&inode_table[dir_entry->inode - 1]);
+
+    pthread_mutex_lock(&gd_lock);
     gd->bg_used_dirs_count++;
+    pthread_mutex_unlock(&gd_lock);
 }
 
 void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name, unsigned short rec_len, int parent_inode){
@@ -662,7 +666,6 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     //find an unused block and add it to inode info.
     int unused_block_num = find_an_unused_block();
     //Initialize .
-    //might have problem here.
     struct ext2_dir_entry * new_dir_entry = (struct ext2_dir_entry *) (disk + 1024 * unused_block_num);
 
     init_first_dir(new_dir_entry, dir_entry->inode);
@@ -671,15 +674,14 @@ void init_new_dir_in_old_block(struct ext2_dir_entry * dir_entry, char* dir_name
     new_dir_entry = (struct ext2_dir_entry *) (((char*) new_dir_entry)+ new_dir_entry->rec_len);
     init_second_dir(new_dir_entry, parent_inode);
 
+    pthread_mutex_lock(&inode_table[dir_entry->inode - 1]);
     struct ext2_inode* ext2_inode = &inode_table[dir_entry->inode - 1];
-    //ext2_inode.i_blocks = 2;
-    //ext2_inode.i_block[0] = unused_block_num;
     update_inode_blocks(ext2_inode, unused_block_num);
-    // sb->s_free_blocks_count--;
-    // gd->bg_free_blocks_count--;
-    // sb->s_free_inodes_count--;
-    // gd->bg_free_inodes_count--;
+    pthread_mutex_unlock(&inode_table[dir_entry->inode - 1]);
+
+    pthread_mutex_lock(&gd_lock);
     gd->bg_used_dirs_count++;
+    pthread_mutex_unlock(&gd_lock);
 }
 
 void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
@@ -705,10 +707,12 @@ void update_inode_blocks(struct ext2_inode *inode, int unused_block_num){
 void make_entry(unsigned int inode, char* dir_name, int* error){
     struct ext2_inode ext2_inode = inode_table[inode];
     // no space 
+    pthread_mutex_lock(&sb_lock);
     if (sb->s_free_inodes_count <= 0) {
         *error = ENOSPC;
         return;
     }
+    pthread_mutex_unlock(&sb_lock);
 
     int last_block = (ext2_inode.i_blocks / 2) - 1;
     int block_num = ext2_inode.i_block[last_block];
@@ -752,10 +756,11 @@ void make_entry(unsigned int inode, char* dir_name, int* error){
                 init_new_dir_in_new_block(new_dir_entry_in_new_block, dir_name, itself_inode);
 
                 //update inode info.
-                //update_inode_blocks(&ext2_inode, unused_block_num);
+                pthread_mutex_lock(&inode_locks[itself_inode - 1]);
                 struct ext2_inode* dir_inode = &inode_table[itself_inode - 1];
                 dir_inode->i_block[dir_inode->i_blocks / 2] = unused_block_num;
                 dir_inode->i_blocks += 2;
+                pthread_mutex_unlock(&inode_locks[itself_inode - 1]);
                 return;
 
             } else{
