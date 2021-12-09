@@ -36,7 +36,7 @@ extern pthread_mutex_t gd_lock;
 extern pthread_mutex_t block_bitmap_lock;
 extern pthread_mutex_t inode_bitmap_lock;
 extern pthread_mutex_t inode_locks[32];
-
+ 
 
 void cp_to_blocks(char* source, char* src_name,char* dst_name, int inode, int blocks_needed, long long size, int mode){
     // overwritting existing file, no need to find new inode
@@ -271,8 +271,9 @@ void init_an_inode_for_file(struct ext2_inode *inode){
 
 
 char* get_source(const char* src_copy, long long* size, int* error){
-    char cwd[PATH_MAX];
-    getcwd(cwd, sizeof(cwd));
+    // get src full path
+    char* cwd;
+    cwd = getcwd(NULL, 0);
     cwd[strlen(cwd)] = '\0';
     if(src_copy[0] != '/'){
         cwd[strlen(cwd)] = '/';
