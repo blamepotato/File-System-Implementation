@@ -58,7 +58,9 @@ int32_t ext2_fsal_cp(const char *src,
         return EISDIR;
     }
     char* src_name = basename(src_copy);
-
+    if(strcmp(src_copy, src) != 0){
+        return 77;
+    }
     unsigned int inode;
     int mode; // 1 if create new dir entry, 2 if overwrite dir entry
     char* dst_name;
