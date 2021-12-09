@@ -150,11 +150,11 @@ int32_t ext2_fsal_rm(const char *path)
         }
     }
 
-    pthread_mutex_lock(&that_entry->inode - 1);
+    pthread_mutex_lock(&inode_locks[that_entry->inode - 1]);
     struct ext2_inode* inode_dir = &inode_table[that_entry->inode - 1];
     update_block_bitmap_in_rm(inode_dir);
     inode_dir->i_dtime = time(NULL);
-    pthread_mutex_unlock(&that_entry->inode - 1);
+    pthread_mutex_unlock(&inode_locks[that_entry->inode - 1]);
 
     pthread_mutex_lock(&sb_lock);
     pthread_mutex_lock(&gd_lock);
