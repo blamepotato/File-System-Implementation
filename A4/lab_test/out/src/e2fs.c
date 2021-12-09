@@ -21,6 +21,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
+
 
 extern unsigned char *disk;
 extern struct ext2_super_block *sb;
@@ -273,7 +275,7 @@ char* get_source(const char* src_copy, long long* size, int* error){
 	FILE *fp = fopen(src_copy, "r");
     // fail is file doesn't exist or is dir
 	if (fp == NULL) {
-        *error = 1;
+        *error = errno;
 		return 0;
 	}
     // is src is a dir 
