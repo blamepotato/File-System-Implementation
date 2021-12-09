@@ -22,6 +22,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 
+int fd;
 unsigned char *disk;
 struct ext2_super_block* sb;
 struct ext2_group_desc* gd;
@@ -43,7 +44,7 @@ void ext2_fsal_init(const char* image)
      * open the disk image by mmap-ing it, etc.
      */
     
-    int fd = open(image, O_RDWR);
+    fd = open(image, O_RDWR);
     if (fd < 0){	
 		return;
 	}
@@ -71,5 +72,16 @@ void ext2_fsal_init(const char* image)
 
 void ext2_fsal_destroy()
 {
-    
+    pthread_mutex_destroy(&sb_lock);
+    pthread_mutex_destroy(&gd_lock);
+    pthread_mutex_destroy(&block_bitmap_lock);
+    pthread_mutex_destroy(&inode_bitmap_lock);
+    for(int i = 0; i < 32; i++){
+        pthread_mutex_destroy(&inode_locks[i]);
+    }
+
+    if (munmap(disk, 4096) == -1) {
+        return;
+    }
+    close(fd);
 }
